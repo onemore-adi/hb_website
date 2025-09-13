@@ -1,122 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Music Club | Your College Name</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <header class="main-header">
-        <nav class="navbar">
-            <a href="#" class="nav-logo">Music Club</a>
-            <ul class="nav-menu">
-                <li class="nav-item"><a href="#hero" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="#journey" class="nav-link">Our Journey</a></li>
-                <li class="nav-item"><a href="#members" class="nav-link">The Band</a></li>
-                <li class="nav-item"><a href="#inductions" class="nav-link cta-button">Join Us</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-
-        <section id="hero" class="hero-section">
-            <div class="hero-content">
-                <h1 class="hero-title">Where Words Fail, Music Speaks.</h1>
-                <p class="hero-subtitle">Welcome to the official home of our college's most vibrant music community.</p>
-                <a href="#events" class="hero-button">See Upcoming Events</a>
-            </div>
-        </section>
-
-        <section id="journey" class="journey-section">
-            <div class="container">
-                <h2>Our Journey</h2>
-                <p class="section-intro">From humble beginnings in a small practice room to headlining college fests, our journey has been one of passion, dedication, and countless jam sessions.</p>
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <h3>2021 - The Beginning</h3>
-                        <p>A few friends with a shared love for music started the club.</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h3>2023 - First Major Gig</h3>
-                        <p>We performed at the Annual College Fest and won 'Best Band'.</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h3>Today - A Community</h3>
-                        <p>We are now a thriving community of over 50 musicians, technicians, and managers.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="members" class="members-section">
-            <div class="container">
-                <h2>Meet The Core Team</h2>
-                <div class="members-grid">
-                    <div class="member-card">
-                        <img src="https://via.placeholder.com/300" alt="Photo of Member 1">
-                        <h3>Alex Ray</h3>
-                        <p>Lead Vocals & Guitar</p>
-                    </div>
-                    <div class="member-card">
-                        <img src="https://via.placeholder.com/300" alt="Photo of Member 2">
-                        <h3>Priya Singh</h3>
-                        <p>Drums & Percussion</p>
-                    </div>
-                    <div class="member-card">
-                        <img src="https://via.placeholder.com/300" alt="Photo of Member 3">
-                        <h3>Mike Chen</h3>
-                        <p>Bass Guitar</p>
-                    </div>
-                    <div class="member-card">
-                        <img src="https://via.placeholder.com/300" alt="Photo of Member 4">
-                        <h3>Sara Khan</h3>
-                        <p>Keyboard & Manager</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="inductions" class="form-section">
-            <div class="container">
-                <h2>Want To Join?</h2>
-                <p>Inductions for the new semester are now open. Fill out the form below to apply!</p>
-                <form action="#" method="POST" class="induction-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="instrument">Primary Instrument / Skill</label>
-                        <input type="text" id="instrument" name="instrument" placeholder="e.g., Guitar, Vocals, Sound Mixing" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Why do you want to join us?</label>
-                        <textarea id="message" name="message" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="submit-button">Submit Application</button>
-                </form>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="main-footer">
-        <div class="container">
-            <div class="footer-social-links">
-                <a href="#">Instagram</a>
-                <a href="#">YouTube</a>
-                <a href="#">Facebook</a>
-            </div>
-            <p>&copy; 2025 The Music Club. All Rights Reserved.</p>
-        </div>
-    </footer>
-
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Drum Kit Viewer</title>
+    <style>
+      body, html, #root {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #111;
+      }
+      
+      * {
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
