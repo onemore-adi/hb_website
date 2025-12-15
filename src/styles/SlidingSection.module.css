@@ -1,0 +1,28 @@
+/* Ported from slidingImage/style.css */
+
+.container {
+    height: 100vh;
+    width: 100vw;
+    background-color: black;
+    margin: 0;
+    overflow: hidden;
+    position: relative; /* Ensure it stays in flow or can be positioned */
+}
+
+.imageTrack {
+    display: flex;
+    gap: 4vmin;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(0%, -50%); /* Initial transform, will be overridden by inline styles */
+    user-select: none; /* Prevent text selection while dragging */
+}
+
+.image {
+    width: 40vmin;
+    height: 56vmin;
+    object-fit: cover;
+    object-position: 100% 50%;
+    pointer-events: none; /* Prevent image dragging default behavior */
+}
