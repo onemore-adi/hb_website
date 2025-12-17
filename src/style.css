@@ -3,7 +3,7 @@
 /* ============================================= */
 
 /* Import Fonts from Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Lato:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Lato:wght@400;700&family=Playfair+Display:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* A simple CSS Reset */
 * {
@@ -31,7 +31,9 @@ body {
     line-height: 1.6;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     font-family: var(--font-heading);
     margin-bottom: 1rem;
     color: white;
@@ -128,12 +130,13 @@ img {
 
 /* Hide hamburger by default */
 .hamburger {
-    display: none; 
+    display: none;
 }
 
 /* Style for the Hero Section */
 .hero-section {
-    min-height: 100vh; /* Make hero section fill the screen height */
+    min-height: 100vh;
+    /* Make hero section fill the screen height */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -215,6 +218,7 @@ img {
 .form-section {
     background-color: var(--surface-color);
 }
+
 .induction-form {
     max-width: 600px;
     margin: 0 auto;
@@ -265,9 +269,11 @@ img {
     padding: 3rem 0;
     text-align: center;
 }
+
 .footer-social a {
     margin: 0 0.5rem;
 }
+
 .footer-bottom {
     margin-top: 2rem;
     color: #777;
