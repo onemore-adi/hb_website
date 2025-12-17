@@ -5,6 +5,7 @@ import { Scene } from "../Scene";
 import { Leva } from "leva";
 import { useEffect, useRef, useState } from "react";
 import { SlidingSection } from "./components/SlidingSection";
+import { BandMembers } from "./components/BandMembers";
 
 export function App() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -12,6 +13,7 @@ export function App() {
   // Scroll Logic State
   const [galleryScroll, setGalleryScroll] = useState(0);
   const [expansionProgress, setExpansionProgress] = useState(0);
+  const [videoHoldComplete, setVideoHoldComplete] = useState(false);
 
   // Smooth Scroll Refs
   const targetScroll = useRef(0);
@@ -37,38 +39,32 @@ export function App() {
       const scrollY = currentScroll.current;
       const vh = window.innerHeight;
 
-      // TIMELINE CONFIGURATION - COMPRESSED (Faster)
-      // Original Total: ~450vh (4.5 screens)
-      // New Total: ~250vh (2.5 screens)
+      // TIMELINE CONFIGURATION
+      // Phase 1: Hero fades (0 - 0.7vh)
+      // Phase 2: Gallery scrolls (0.7vh - 2.0vh)
+      // Phase 3: Last image expands to fullscreen (2.0vh - 2.5vh)
+      // Phase 4: Video HOLDS at fullscreen for viewing (2.5vh - 4.0vh)
+      // Phase 5: Video fades, Band Members appears (after 4.0vh)
 
-      const HERO_END = 0.7 * vh; // Slightly faster hero
+      const HERO_END = 0.7 * vh;
       const GALLERY_START = 0.7 * vh;
-      const GALLERY_END = 2.0 * vh; // 1.3 screens for gallery (was 2.5)
+      const GALLERY_END = 2.0 * vh;
       const EXPANSION_START = 2.0 * vh;
-      const EXPANSION_END = 2.5 * vh; // 0.5 screen for expansion (was 1.0)
+      const EXPANSION_END = 2.5 * vh; // Video fully expanded here
+      const VIDEO_HOLD_END = 5.0 * vh; // Video stays fullscreen until here
 
-      // 1. HERO ANIMATION (0 - 100vh)
+      // 1. HERO ANIMATION (0 - 0.7vh)
       if (heroRef.current) {
-        // We only handle Opacity here now. 
-        // 3D transforms (Scale/Rotation) are handled inside Scene.tsx for smoothness.
-
-        // Use raw scrollY for Opacity Logic to sync with timeline
         const heroProgress = Math.min(Math.max(0, scrollY / HERO_END), 1);
-
-        // Opacity fade out
         const opacity = Math.max(0, 1 - Math.max(0, heroProgress - 0.7) * 3.33);
 
         heroRef.current.style.opacity = `${opacity}`;
         heroRef.current.style.visibility = opacity <= 0.01 ? 'hidden' : 'visible';
         heroRef.current.style.pointerEvents = opacity <= 0.01 ? 'none' : 'auto';
-
-        // Reset transform to ensure no CSS conflict if any remains
         heroRef.current.style.transform = 'none';
       }
 
       // 2. GALLERY ANIMATION
-      // For gallery, we might want the smoothed value too, or direct? 
-      // Smoothed is usually better for consistency.
       let currentGalleryScroll = 0;
       if (scrollY > GALLERY_START) {
         const progress = Math.min((scrollY - GALLERY_START) / (GALLERY_END - GALLERY_START), 1);
@@ -82,13 +78,12 @@ export function App() {
         currentExpansion = progress;
       }
 
-      // Update state only if changed significantly to avoid strict equality churn?
-      // Actually React state updates in RAF 60fps might be okay if components are optimized.
-      // But passing these down as props triggers re-renders of SlidingSection.
-      // Ideally SlidingSection should also expose a ref API or we pass the RefObject down.
-      // For now, let's just set state and see if performance holds.
+      // 4. VIDEO HOLD CHECK - only complete after VIDEO_HOLD_END
+      const isVideoHoldComplete = scrollY > VIDEO_HOLD_END;
+
       setGalleryScroll(currentGalleryScroll);
       setExpansionProgress(currentExpansion);
+      setVideoHoldComplete(isVideoHoldComplete);
 
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -127,10 +122,7 @@ export function App() {
       </div>
 
       {/* 2. SLIDING GALLERY (Sticky during its phase) */}
-      {/* We want this to be visible after Hero fades. 
-          It should be sticky starting at 100vh (or 0vh but under hero) until expansion is done.
-          Actually easiest is to have it fixed/sticky at top zIndex 5, and Hero fades out to reveal it.
-      */}
+      {/* Fades out after video hold completes to reveal Band Members section */}
       <div
         style={{
           position: 'fixed',
@@ -138,17 +130,29 @@ export function App() {
           left: 0,
           width: '100vw',
           height: '100vh',
-          zIndex: 5, // Behind Hero initially
-          // It needs to stay visible until we scroll very far past? 
-          // Actually next section will just scroll over it if we use normal flow, OR we fade it out/transition.
-          // Since "Last Frame Expands to Next Section", we might want the NEXT section to appear *inside* the expansion.
+          zIndex: 5,
+          opacity: videoHoldComplete ? 0 : 1,
+          visibility: videoHoldComplete ? 'hidden' : 'visible',
+          transition: 'opacity 0.5s ease, visibility 0.5s ease',
+          pointerEvents: videoHoldComplete ? 'none' : 'auto',
         }}
       >
         <SlidingSection scrollProgress={galleryScroll} expansionProgress={expansionProgress} />
       </div>
 
-      {/* 3. NEXT SECTION PLACEHOLDER - REMOVED (Revealing image only) */}
-      <div style={{ height: '100vh', width: '100vw' }} />
+      {/* 3. SPACER TO PUSH BAND MEMBERS BELOW THE FIXED SECTIONS */}
+      <div style={{ height: '550vh', width: '100vw' }} />
+
+      {/* 4. BAND MEMBERS SECTION - Seamless with black background */}
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        backgroundColor: '#000000',
+        margin: 0,
+        padding: 0,
+      }}>
+        <BandMembers />
+      </div>
 
     </div>
   );

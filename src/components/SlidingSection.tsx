@@ -2,9 +2,12 @@ import { useEffect, useRef } from 'react';
 import styles from '../styles/SlidingSection.module.css';
 
 type MediaItem = {
-    type: 'image' | 'video';
+    type: 'image' | 'video' | 'youtube';
     src: string;
 };
+
+// YouTube video ID for the last item
+const YOUTUBE_VIDEO_ID = '23Zomk7qBko';
 
 const items: MediaItem[] = [
     { type: 'image', src: "https://plus.unsplash.com/premium_photo-1682855223699-edb85ffa57b3?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
@@ -14,7 +17,7 @@ const items: MediaItem[] = [
     { type: 'image', src: "https://images.unsplash.com/photo-1550635707-e8c55839e834?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
     { type: 'image', src: "https://images.unsplash.com/photo-1614247912229-26a7e2114c0a?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
     { type: 'image', src: "https://images.unsplash.com/photo-1508979822114-db019a20d576?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-    { type: 'video', src: "/bpgc.mov" }
+    { type: 'youtube', src: YOUTUBE_VIDEO_ID }
 ];
 
 interface SlidingSectionProps {
@@ -167,7 +170,26 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                                 className={styles.image} // Re-use 40vmin x 56vmin size + relative
                                 style={{ overflow: 'hidden', position: 'relative' }}
                             >
-                                {item.type === 'video' ? (
+                                {item.type === 'youtube' ? (
+                                    <iframe
+                                        src={`https://www.youtube.com/embed/${item.src}?autoplay=1&mute=1&loop=1&playlist=${item.src}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
+                                        title="YouTube video"
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        style={{
+                                            width: '100vw',
+                                            height: '100vh',
+                                            maxWidth: 'none',
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)',
+                                            border: 'none',
+                                            pointerEvents: 'none' // Prevent interaction with YouTube controls
+                                        }}
+                                    />
+                                ) : item.type === 'video' ? (
                                     <video
                                         src={item.src}
                                         autoPlay
@@ -177,7 +199,7 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                                         style={{
                                             width: '100vw',
                                             height: '100vh',
-                                            maxWidth: 'none', // Override any CSS limits
+                                            maxWidth: 'none',
                                             position: 'absolute',
                                             top: '50%',
                                             left: '50%',
@@ -193,7 +215,7 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                                         style={{
                                             width: '100vw',
                                             height: '100vh',
-                                            maxWidth: 'none', // Override any CSS limits
+                                            maxWidth: 'none',
                                             position: 'absolute',
                                             top: '50%',
                                             left: '50%',
@@ -206,8 +228,9 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                                 <div style={{
                                     position: 'absolute',
                                     inset: 0,
-                                    backgroundColor: 'rgba(0,0,0,0.3)', // Adjust opacity as needed
-                                    zIndex: 1
+                                    backgroundColor: 'rgba(0,0,0,0.3)',
+                                    zIndex: 1,
+                                    pointerEvents: 'none'
                                 }} />
                             </div>
                         );
@@ -235,7 +258,21 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                 {/* 
                     Render the last item content again for the full screen overlay 
                 */}
-                {items[items.length - 1].type === 'video' ? (
+                {items[items.length - 1].type === 'youtube' ? (
+                    <iframe
+                        src={`https://www.youtube.com/embed/${items[items.length - 1].src}?autoplay=1&mute=1&loop=1&playlist=${items[items.length - 1].src}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
+                        title="YouTube video"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            border: 'none',
+                            pointerEvents: 'none'
+                        }}
+                    />
+                ) : items[items.length - 1].type === 'video' ? (
                     <video
                         src={items[items.length - 1].src}
                         autoPlay
@@ -263,7 +300,8 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                     position: 'absolute',
                     inset: 0,
                     backgroundColor: 'rgba(0,0,0,0.3)',
-                    zIndex: 1
+                    zIndex: 1,
+                    pointerEvents: 'none'
                 }} />
             </div>
         </div>
