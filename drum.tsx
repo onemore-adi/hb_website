@@ -590,7 +590,7 @@ const HiHat = forwardRef<THREE.Group, { nodes: GLTFResult['nodes'], materials: G
 
 export const Drumkit = forwardRef<DrumRefs, JSX.IntrinsicElements['group']>((props, ref) => {
 
-    const { nodes, materials } = useGLTF('https://cdn.jsdelivr.net/gh/onemore-adi/hb_website@optimization/public/drum.glb') as unknown as GLTFResult
+    const { nodes, materials } = useGLTF('https://raw.githubusercontent.com/onemore-adi/hb_website/optimization/public/drum.glb') as unknown as GLTFResult
 
 
 
@@ -793,4 +793,4 @@ export const Drumkit = forwardRef<DrumRefs, JSX.IntrinsicElements['group']>((pro
 
 
 
-useGLTF.preload('https://cdn.jsdelivr.net/gh/onemore-adi/hb_website@optimization/public/drum.glb')
+useGLTF.preload('https://raw.githubusercontent.com/onemore-adi/hb_website/optimization/public/drum.glb')
