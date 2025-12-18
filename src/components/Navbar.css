@@ -285,6 +285,35 @@
     }
 }
 
+/* Role-based link styling */
+.portal-link.admin-link {
+    color: rgba(251, 191, 36, 0.9);
+}
+
+.portal-link.admin-link:hover {
+    color: #fbbf24;
+}
+
+.portal-link.member-link {
+    color: rgba(34, 197, 94, 0.9);
+}
+
+.portal-link.member-link:hover {
+    color: #22c55e;
+}
+
+.portal-link.logout-link {
+    color: rgba(239, 68, 68, 0.7);
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.portal-link.logout-link:hover {
+    color: #ef4444;
+}
+
 /* ============================================= */
 /* CLOSE HINT                                    */
 /* ============================================= */

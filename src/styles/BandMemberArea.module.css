@@ -1,0 +1,196 @@
+.page {
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    padding: 2rem;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.page.loaded {
+    opacity: 1;
+}
+
+.backLink {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    transition: color 0.3s ease;
+    z-index: 100;
+}
+
+.backLink:hover {
+    color: #fff;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-top: 4rem;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.memberBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #22c55e;
+    margin-bottom: 1.5rem;
+}
+
+.badgeIcon {
+    font-size: 1rem;
+}
+
+.title {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 1rem;
+    background: linear-gradient(135deg, #22c55e 0%, #10b981 50%, #14b8a6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+}
+
+/* Grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+/* Cards */
+.card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    border-color: rgba(34, 197, 94, 0.3);
+    background: rgba(34, 197, 94, 0.03);
+    transform: translateY(-2px);
+}
+
+.cardIcon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.cardTitle {
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #fff;
+    margin: 0 0 0.75rem;
+}
+
+.cardText {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+}
+
+.placeholder {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footerText {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0;
+}
+
+/* Loading State */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #22c55e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .page {
+        padding: 1rem;
+    }
+
+    .container {
+        padding-top: 3rem;
+    }
+
+    .header {
+        margin-bottom: 2.5rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+
+    .backLink {
+        top: 1rem;
+        left: 1rem;
+    }
+}

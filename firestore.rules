@@ -1,0 +1,54 @@
+// Firestore Security Rules for HeartBeats Website
+// Apply these rules in Firebase Console > Firestore Database > Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own document
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Users can create their own document on first login
+      // Must set isAdmin to false (prevents self-promotion to admin)
+      allow create: if request.auth != null 
+                    && request.auth.uid == userId
+                    && request.resource.data.isAdmin == false;
+      
+      // Users can update their own document with restrictions:
+      // - Cannot change: isAdmin field
+      // - Cannot change verificationStatus from 'member' back to other values
+      // - Can change verificationStatus from 'declined' to 'pending' (reapply)
+      // - Can change verificationStatus from 'none' to 'pending' (apply)
+      allow update: if request.auth != null 
+                    && request.auth.uid == userId
+                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin'])
+                    && (
+                      // Allow if not changing verification status
+                      resource.data.verificationStatus == request.resource.data.verificationStatus
+                      // Or allow changing from 'none' to 'pending'
+                      || (resource.data.verificationStatus == 'none' && request.resource.data.verificationStatus == 'pending')
+                      // Or allow changing from 'declined' to 'pending' (reapply)
+                      || (resource.data.verificationStatus == 'declined' && request.resource.data.verificationStatus == 'pending')
+                      // Prevent changing from 'member' to anything else
+                      || resource.data.verificationStatus == 'member' && request.resource.data.verificationStatus == 'member'
+                    );
+      
+      // Admins can read all user documents
+      allow read: if request.auth != null 
+                  && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      
+      // Admins can update any user's verificationStatus (approve, decline, revoke)
+      // Valid status transitions by admin:
+      // - 'pending' -> 'member' (approve)
+      // - 'pending' -> 'declined' (decline)
+      // - 'member' -> 'none' (revoke)
+      // - 'declined' -> 'member' (approve after decline)
+      allow update: if request.auth != null 
+                    && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+  }
+}
