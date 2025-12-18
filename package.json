@@ -21,6 +21,7 @@
     "leva": "^0.10.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-router-dom": "^7.11.0",
     "three": "^0.180.0",
     "three-stdlib": "^2.36.0"
   }

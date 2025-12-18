@@ -1,0 +1,514 @@
+/* ============================================= */
+/* JOIN US PAGE - BRUTALIST HIGH-CONTRAST        */
+/* Deep Black | Stark White | Blood Red          */
+/* ============================================= */
+
+.page {
+    --black: #000000;
+    --white: #FFFFFF;
+    --red: #FF0000;
+    --font-display: 'Bebas Neue', 'Impact', sans-serif;
+    --font-heading: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'Space Mono', 'Courier New', monospace;
+
+    position: relative;
+    min-height: 100vh;
+    background: var(--black);
+    color: var(--white);
+    overflow-x: hidden;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Inverted state on submit hover */
+.page.inverted {
+    background: var(--red);
+}
+
+.page.inverted .input,
+.page.inverted .select,
+.page.inverted .textarea {
+    border-color: var(--white);
+    color: var(--white);
+}
+
+.page.inverted .submitButton {
+    background: var(--white);
+    color: var(--red);
+}
+
+/* ============================================= */
+/* VERTICAL BLIND ENTRANCE                       */
+/* ============================================= */
+
+.blinds {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.blind {
+    flex: 1;
+    background: var(--red);
+    transform: scaleY(1);
+    transform-origin: top;
+    animation: blindReveal 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+
+.page:not(.loaded) .blind {
+    animation: none;
+    transform: scaleY(1);
+}
+
+@keyframes blindReveal {
+    0% {
+        transform: scaleY(1);
+    }
+
+    100% {
+        transform: scaleY(0);
+    }
+}
+
+/* ============================================= */
+/* RECORDING INDICATOR                           */
+/* ============================================= */
+
+.recordingIndicator {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 50;
+}
+
+.recordingIndicator.active {
+    opacity: 1;
+}
+
+.recordingDot {
+    width: 10px;
+    height: 10px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: blink 0.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.recordingText {
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--red);
+    letter-spacing: 0.1em;
+}
+
+/* ============================================= */
+/* BACK LINK                                     */
+/* ============================================= */
+
+.backLink {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    color: var(--white);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    transition: color 0.3s ease;
+    z-index: 50;
+}
+
+.backLink:hover {
+    color: var(--red);
+}
+
+/* ============================================= */
+/* SPLIT SCREEN CONTAINER                        */
+/* ============================================= */
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Left Panel - Sticky Logo */
+.leftPanel {
+    position: sticky;
+    top: 0;
+    width: 30%;
+    min-width: 200px;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 2px solid var(--white);
+}
+
+.logoContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.verticalLogo {
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-size: clamp(4rem, 10vw, 8rem);
+    font-weight: 400;
+    font-family: var(--font-display);
+    color: var(--red);
+    letter-spacing: 0.15em;
+    animation: heartbeatPulse 2s ease-in-out infinite;
+}
+
+@keyframes heartbeatPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+
+    25% {
+        opacity: 0.9;
+        text-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+    }
+
+    50% {
+        opacity: 1;
+        text-shadow: 0 0 0 transparent;
+    }
+
+    75% {
+        opacity: 0.9;
+        text-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+    }
+}
+
+/* Right Panel - Form */
+.rightPanel {
+    flex: 1;
+    padding: 6rem 4rem 4rem;
+    overflow-y: auto;
+}
+
+/* ============================================= */
+/* TITLE - GLITCH ANIMATION                      */
+/* ============================================= */
+
+.title {
+    margin: 0 0 3rem 0;
+    overflow: hidden;
+}
+
+.titleText {
+    display: block;
+    font-size: clamp(3rem, 8vw, 5rem);
+    font-weight: 400;
+    font-family: var(--font-display);
+    color: var(--white);
+    letter-spacing: 0.05em;
+    animation: glitchIn 0.8s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+    animation-delay: 0.6s;
+    opacity: 0;
+    transform: translateY(100%);
+}
+
+@keyframes glitchIn {
+    0% {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translateY(-5%) skewX(-5deg);
+    }
+
+    40% {
+        transform: translateY(3%) skewX(3deg);
+    }
+
+    60% {
+        transform: translateY(-2%) skewX(-2deg);
+    }
+
+    80% {
+        transform: translateY(1%) skewX(1deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) skewX(0);
+    }
+}
+
+/* ============================================= */
+/* FORM STYLING                                  */
+/* ============================================= */
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 600px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: var(--white);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.hint {
+    font-size: 0.7rem;
+    font-weight: 400;
+    font-family: var(--font-mono);
+    color: var(--red);
+    letter-spacing: 0.05em;
+    margin-left: 0.5rem;
+}
+
+.input,
+.select,
+.textarea {
+    width: 100%;
+    padding: 1rem;
+    background: transparent;
+    border: 2px solid var(--white);
+    border-radius: 0;
+    color: var(--white);
+    font-size: 1rem;
+    font-family: var(--font-body);
+    font-weight: 400;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+    border-color: var(--red);
+    font-weight: 700;
+}
+
+.select {
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='white'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 3rem;
+}
+
+.select option {
+    background: var(--black);
+    color: var(--white);
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* ============================================= */
+/* SUBMIT BUTTON                                 */
+/* ============================================= */
+
+.submitButton {
+    padding: 1.25rem 2rem;
+    margin-top: 1rem;
+    background: var(--red);
+    border: 2px solid var(--red);
+    border-radius: 0;
+    color: var(--white);
+    font-size: 1.25rem;
+    font-weight: 400;
+    font-family: var(--font-display);
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.submitButton:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.submitButton:not(:disabled):hover {
+    background: var(--white);
+    color: var(--red);
+    border-color: var(--white);
+}
+
+/* ============================================= */
+/* SUCCESS STATE                                 */
+/* ============================================= */
+
+.successContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 2rem 0;
+}
+
+.successIcon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--red);
+    color: var(--red);
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+.successTitle {
+    font-size: 3rem;
+    font-weight: 400;
+    font-family: var(--font-display);
+    color: var(--white);
+    margin: 0;
+    letter-spacing: 0.05em;
+}
+
+.successMessage {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: var(--font-body);
+    margin: 0;
+}
+
+.homeLink {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 1rem 2rem;
+    background: transparent;
+    border: 2px solid var(--white);
+    color: var(--white);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    transition: all 0.3s ease;
+}
+
+.homeLink:hover {
+    background: var(--white);
+    color: var(--black);
+}
+
+/* ============================================= */
+/* RESPONSIVE                                    */
+/* ============================================= */
+
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .leftPanel {
+        position: relative;
+        width: 100%;
+        height: auto;
+        min-height: 150px;
+        border-right: none;
+        border-bottom: 2px solid var(--white);
+    }
+
+    .verticalLogo {
+        writing-mode: horizontal-tb;
+        transform: none;
+        font-size: 2.5rem;
+    }
+
+    .rightPanel {
+        padding: 3rem 2rem 4rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .backLink {
+        top: 1rem;
+        left: 1rem;
+        font-size: 0.7rem;
+    }
+
+    .recordingIndicator {
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .rightPanel {
+        padding: 2rem 1.5rem 3rem;
+    }
+
+    .title {
+        margin-bottom: 2rem;
+    }
+
+    .titleText {
+        font-size: 1.75rem;
+    }
+
+    .label {
+        font-size: 0.75rem;
+    }
+
+    .hint {
+        display: block;
+        margin-left: 0;
+        margin-top: 0.25rem;
+    }
+
+    .input,
+    .select,
+    .textarea {
+        padding: 0.875rem;
+        font-size: 0.9rem;
+    }
+
+    .submitButton {
+        padding: 1rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}

@@ -6,6 +6,9 @@ import { Leva } from "leva";
 import { useEffect, useRef, useState } from "react";
 import { SlidingSection } from "./components/SlidingSection";
 import { BandMembers } from "./components/BandMembers";
+import { Navbar } from "./components/Navbar";
+import { JoinUsBanner } from "./components/JoinUsBanner";
+import { ContactFooter } from "./components/ContactFooter";
 
 export function App() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -95,6 +98,9 @@ export function App() {
   return (
     <div style={{ backgroundColor: 'black', minHeight: '550vh' }}>
 
+      {/* NAVIGATION BAR - Smart header with scroll behavior */}
+      <Navbar />
+
       {/* 1. HERO SECTION (Sticky 0-100vh) */}
       <div
         style={{
@@ -152,6 +158,8 @@ export function App() {
         padding: 0,
       }}>
         <BandMembers />
+        <JoinUsBanner />
+        <ContactFooter />
       </div>
 
     </div>
