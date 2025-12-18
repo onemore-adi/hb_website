@@ -1,18 +1,23 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 interface NavLinkData {
     label: string;
     href: string;
     scrollTo?: number; // Scroll position in vh for same-page navigation
+    requiresAuth?: boolean;
+    requiresAdmin?: boolean;
+    requiresMember?: boolean;
+    showWhenLoggedOut?: boolean;
 }
 
-const NAV_LINKS: NavLinkData[] = [
-    { label: 'About us', href: '#about', scrollTo: 100 }, // Scroll to start of gallery section (100vh)
-    { label: 'Meet the Band', href: '#band', scrollTo: 550 }, // Scroll to band members (550vh = after spacer)
+// Base navigation links - dynamic links added based on auth state
+const BASE_NAV_LINKS: NavLinkData[] = [
+    { label: 'About us', href: '#about', scrollTo: 100 },
+    { label: 'Meet the Band', href: '#band', scrollTo: 550 },
     { label: 'Join Us', href: '/join' },
-    { label: 'Login / Signup', href: '#login' },
 ];
 
 export function Navbar() {
@@ -22,6 +27,28 @@ export function Navbar() {
     const ticking = useRef(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const { user, userProfile, signInWithGoogle, signOut, loading } = useAuth();
+
+    // Build dynamic nav links based on auth state
+    const navLinks: NavLinkData[] = [
+        ...BASE_NAV_LINKS,
+        // Show Login/Signup when logged out, Dashboard when logged in
+        user
+            ? { label: 'Dashboard', href: '/dashboard', requiresAuth: true }
+            : { label: 'Login / Signup', href: '#login', showWhenLoggedOut: true },
+        // Show Band Area for verified members
+        ...(userProfile?.verificationStatus === 'member'
+            ? [{ label: 'Band Area', href: '/band-area', requiresMember: true }]
+            : []),
+        // Show Admin for admins
+        ...(userProfile?.isAdmin
+            ? [{ label: 'Admin', href: '/admin', requiresAdmin: true }]
+            : []),
+        // Show Logout when logged in
+        ...(user
+            ? [{ label: 'Logout', href: '#logout', requiresAuth: true }]
+            : []),
+    ];
 
     // Smart scroll behavior for portal icon
     const handleScroll = useCallback(() => {
@@ -88,9 +115,31 @@ export function Navbar() {
     };
 
     // Handle navigation with smooth scroll
-    const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, link: NavLinkData) => {
+    const handleNavClick = async (e: React.MouseEvent<HTMLAnchorElement>, link: NavLinkData) => {
         e.preventDefault();
         closeMenu();
+
+        // Handle login click
+        if (link.href === '#login' && !user && !loading) {
+            try {
+                await signInWithGoogle();
+                navigate('/dashboard');
+            } catch (error) {
+                console.error('Login failed:', error);
+            }
+            return;
+        }
+
+        // Handle logout click
+        if (link.href === '#logout' && user) {
+            try {
+                await signOut();
+                navigate('/');
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+            return;
+        }
 
         // If it's an external route (like /join), navigate to it
         if (link.href.startsWith('/')) {
@@ -174,11 +223,11 @@ export function Navbar() {
             {/* Full-Screen Portal Overlay */}
             <div className={`portal-overlay ${isMenuOpen ? 'open' : ''}`}>
                 <nav className="portal-nav">
-                    {NAV_LINKS.map((link, index) => (
+                    {navLinks.map((link, index) => (
                         <a
                             key={link.label}
                             href={link.href}
-                            className="portal-link"
+                            className={`portal-link ${link.requiresAdmin ? 'admin-link' : ''} ${link.requiresMember ? 'member-link' : ''} ${link.href === '#logout' ? 'logout-link' : ''}`}
                             style={{ '--delay': `${0.1 + index * 0.08}s` } as React.CSSProperties}
                             onClick={(e) => handleNavClick(e, link)}
                             onMouseEnter={handleLinkHover}
