@@ -1,0 +1,226 @@
+/* ApplicationsList Styles */
+
+.page {
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    font-family: var(--font-body);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.page.loaded {
+    opacity: 1;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 6rem 2rem 4rem;
+}
+
+.backLink {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    z-index: 100;
+    transition: opacity 0.3s ease;
+}
+
+.backLink:hover {
+    opacity: 0.6;
+}
+
+/* Loading */
+.loadingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #ff0000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Header */
+.header {
+    margin-bottom: 2rem;
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.5rem;
+}
+
+.stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.stat {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.1em;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+
+.tab.active {
+    background: #ff0000;
+    border-color: #ff0000;
+    color: #fff;
+}
+
+.tabCount {
+    font-size: 0.65rem;
+    opacity: 0.7;
+}
+
+/* List */
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.empty {
+    text-align: center;
+    padding: 3rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: var(--font-mono);
+}
+
+.card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    text-decoration: none;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.cardMain {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.cardName {
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font-heading);
+}
+
+.cardMeta {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.cardRight {
+    display: flex;
+    align-items: center;
+}
+
+/* Badges */
+.badge {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+}
+
+.badgePending {
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+}
+
+.badgeAccepted {
+    background: rgba(76, 175, 80, 0.15);
+    color: #4caf50;
+}
+
+.badgeDeclined {
+    background: rgba(244, 67, 54, 0.15);
+    color: #f44336;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .container {
+        padding: 5rem 1rem 2rem;
+    }
+
+    .tabs {
+        gap: 0.25rem;
+    }
+
+    .tab {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.65rem;
+    }
+
+    .card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}

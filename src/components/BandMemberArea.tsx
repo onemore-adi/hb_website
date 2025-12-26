@@ -67,6 +67,26 @@ export function BandMemberArea() {
 
                 {/* Content Cards */}
                 <div className={styles.grid}>
+                    {/* Applications Card - VIEW INDUCTION APPLICATIONS */}
+                    <Link to="/applications" className={`${styles.card} ${styles.cardLink}`}>
+                        <div className={styles.cardIcon}>📋</div>
+                        <h2 className={styles.cardTitle}>APPLICATIONS</h2>
+                        <p className={styles.cardText}>
+                            View induction applications and check applicant details.
+                        </p>
+                        <div className={styles.cardAction}>VIEW APPLICATIONS →</div>
+                    </Link>
+
+                    {/* Chat Card - BAND CHAT */}
+                    <Link to="/chat" className={`${styles.card} ${styles.cardLink}`}>
+                        <div className={styles.cardIcon}>💬</div>
+                        <h2 className={styles.cardTitle}>BAND CHAT</h2>
+                        <p className={styles.cardText}>
+                            Chat with other band members in real-time.
+                        </p>
+                        <div className={styles.cardAction}>OPEN CHAT →</div>
+                    </Link>
+
                     {/* Announcements Card */}
                     <div className={styles.card}>
                         <div className={styles.cardIcon}>📢</div>

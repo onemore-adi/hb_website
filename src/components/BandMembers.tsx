@@ -5,49 +5,83 @@ interface BandMember {
     name: string;
     role: string;
     image: string;
+    ebRole?: string; // Executive Body role (Vice President, Secretary, Treasurer)
 }
 
-// Band member data
+// Band member data - Using Cloudinary CDN for bandwidth optimization
 const bandMembers: BandMember[] = [
     {
-        name: "Member 1",
-        role: "Lead Vocals",
-        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=600&auto=format&fit=crop"
+        name: "Amrit",
+        role: "Vocalist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637065/Amrit_vocalist_gx8zrs.webp"
     },
     {
-        name: "Member 2",
-        role: "Lead Guitar",
-        image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=600&auto=format&fit=crop"
+        name: "Ashrit",
+        role: "Vocalist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637067/Ashrit_vocalist_u1xsii.jpg"
     },
     {
-        name: "Member 3",
-        role: "Bass Guitar",
-        image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=600&auto=format&fit=crop"
+        name: "Paromita",
+        role: "Vocalist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637069/Paromita_vocalist_oxihdv.jpg"
     },
     {
-        name: "Member 4",
-        role: "Drums",
-        image: "https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?q=80&w=600&auto=format&fit=crop"
+        name: "Rishreeta",
+        role: "Vocalist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637065/Rishreeta_vocalist_pffbrk.jpg",
+        ebRole: "Vice President"
     },
     {
-        name: "Member 5",
-        role: "Keyboard",
-        image: "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?q=80&w=600&auto=format&fit=crop"
+        name: "Sumedh",
+        role: "Guitarist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/Sumedh_guitarist_masgx8.jpg"
     },
     {
-        name: "Member 6",
-        role: "Rhythm Guitar",
-        image: "https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?q=80&w=600&auto=format&fit=crop"
+        name: "Ajitesh",
+        role: "Keyboardist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637245/Ajitesh_keyboardist-min_xj8mvj.jpg",
+        ebRole: "Secretary"
     },
     {
-        name: "Member 7",
-        role: "Tabla",
-        image: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=600&auto=format&fit=crop"
+        name: "Ayush",
+        role: "Keyboardist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637246/Ayush_keyboardist-min_ozbcdl.jpg"
     },
     {
-        name: "Member 8",
-        role: "Sitar",
-        image: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=600&auto=format&fit=crop"
+        name: "Govind",
+        role: "Drummer",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/Govind_drummer_ygr9nc.jpg"
+    },
+    {
+        name: "Achutha",
+        role: "Flautist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/Achutha_flautist_riw35e.jpg",
+        ebRole: "Treasurer"
+    },
+    {
+        name: "Anustup",
+        role: "Sarod",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637067/Anustup_sarod_kibn4o.jpg"
+    },
+    {
+        name: "Rishabh",
+        role: "Manager",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637245/Rishabh_manager-min_xw8pcv.jpg"
+    },
+    {
+        name: "Sthiti",
+        role: "Manager",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637065/Sthiti_manager_h8aozg.jpg"
+    },
+    {
+        name: "Nirav",
+        role: "Designer",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637067/Nirav_designer_sl5e3d.jpg"
+    },
+    {
+        name: "Rishav",
+        role: "Photographer",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/rishav_photographer_gdbitk.jpg"
     }
 ];
 
@@ -55,9 +89,17 @@ const bandMembers: BandMember[] = [
 function PortraitCard({ member, index }: { member: BandMember; index: number }) {
     return (
         <div
-            className={styles.portraitCard}
+            className={`${styles.portraitCard} ${member.ebRole ? styles.ebMember : ''}`}
             style={{ '--index': index } as React.CSSProperties}
         >
+            {/* EB Badge */}
+            {member.ebRole && (
+                <div className={styles.ebBadge}>
+                    <span className={styles.ebLabel}>EB</span>
+                    <span className={styles.ebRole}>{member.ebRole}</span>
+                </div>
+            )}
+
             {/* Portrait Image */}
             <div className={styles.imageContainer}>
                 <img

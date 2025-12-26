@@ -5,6 +5,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Config collection (application settings)
+    match /config/{configId} {
+      // Anyone can read config (to check if applications are open)
+      allow read: if true;
+      
+      // Only admins can write config
+      allow write: if request.auth != null 
+                   && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                   && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
     // Users collection
     match /users/{userId} {
       // Users can read their own document
@@ -47,6 +58,104 @@ service cloud.firestore {
       // - 'member' -> 'none' (revoke)
       // - 'declined' -> 'member' (approve after decline)
       allow update: if request.auth != null 
+                    && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Applications collection (join us submissions)
+    match /applications/{applicationId} {
+      // Webhook can create applications with valid API key header
+      // For security, we validate required fields exist
+      allow create: if request.resource.data.keys().hasAll(['rollNo', 'email', 'name', 'field', 'status', 'source'])
+                    && request.resource.data.status == 'pending';
+      
+      // Webhook can update (override) existing applications from google_forms
+      allow update: if request.resource.data.keys().hasAll(['rollNo', 'email', 'name', 'field', 'status', 'source'])
+                    && request.resource.data.source == 'google_forms';
+      // Users can read their own application (matched by linkedUserId or email)
+      allow read: if request.auth != null && (
+        resource.data.linkedUserId == request.auth.uid ||
+        resource.data.email == request.auth.token.email
+      );
+      
+      // Users can create their own application when logged in
+      allow create: if request.auth != null
+                    && request.resource.data.email == request.auth.token.email
+                    && request.resource.data.status == 'pending';
+      
+      // Users can update linkedUserId on their own application (for linking)
+      allow update: if request.auth != null
+                    && resource.data.email == request.auth.token.email
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['linkedUserId']);
+      
+      // Admins can read all applications
+      allow read: if request.auth != null 
+                  && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      
+      // Verified band members can read all applications
+      allow read: if request.auth != null 
+                  && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.verificationStatus == 'member';
+      
+      // Admins can update application status
+      allow update: if request.auth != null 
+                    && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      
+      // Votes subcollection - members can vote/change vote, only admin reads all votes
+      match /votes/{odUserId} {
+        // Members can read/write their own vote (using odUserId as document ID)
+        allow read, write: if request.auth != null 
+                          && request.auth.uid == odUserId
+                          && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.verificationStatus == 'member';
+        
+        // Admin can read all votes
+        allow read: if request.auth != null 
+                    && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      }
+      
+      // Remarks subcollection - all members and admins can read/write
+      match /remarks/{remarkId} {
+        // Members can read all remarks
+        allow read: if request.auth != null 
+                    && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                    && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.verificationStatus == 'member'
+                        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+        
+        // Members can create remarks with their own author info
+        allow create: if request.auth != null 
+                      && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                      && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.verificationStatus == 'member'
+                          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true)
+                      && request.resource.data.authorId == request.auth.uid;
+        
+        // Admin can delete remarks
+        allow delete: if request.auth != null 
+                      && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                      && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      }
+    }
+    
+    // Chat collection - band members can chat
+    match /chat/{messageId} {
+      // Members and admins can read all messages
+      allow read: if request.auth != null 
+                  && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                  && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.verificationStatus == 'member'
+                      || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+      
+      // Members and admins can create messages with their own sender info
+      allow create: if request.auth != null 
+                    && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                    && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.verificationStatus == 'member'
+                        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true)
+                    && request.resource.data.senderId == request.auth.uid;
+      
+      // Admin can delete messages (for cleanup)
+      allow delete: if request.auth != null 
                     && exists(/databases/$(database)/documents/users/$(request.auth.uid))
                     && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }

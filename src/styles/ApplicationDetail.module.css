@@ -1,0 +1,513 @@
+/* ApplicationDetail Styles */
+
+.page {
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    font-family: var(--font-body);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.page.loaded {
+    opacity: 1;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 6rem 2rem 4rem;
+}
+
+.backLink {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    z-index: 100;
+    transition: opacity 0.3s ease;
+}
+
+.backLink:hover {
+    opacity: 0.6;
+}
+
+/* Loading */
+.loadingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #ff0000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Not Found */
+.notFound {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.notFound h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.notFound p {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Header */
+.header {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    margin: 0 0 1rem;
+}
+
+.headerMeta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+}
+
+.badgePending {
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.badgeAccepted {
+    background: rgba(76, 175, 80, 0.15);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.badgeDeclined {
+    background: rgba(244, 67, 54, 0.15);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.source {
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.1em;
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.actionButton {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    border: 2px solid;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.acceptButton {
+    border-color: #4caf50;
+    color: #4caf50;
+}
+
+.acceptButton:hover,
+.acceptButton.active {
+    background: #4caf50;
+    color: #000;
+}
+
+.pendingButton {
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+.pendingButton:hover,
+.pendingButton.active {
+    background: #ffc107;
+    color: #000;
+}
+
+.declineButton {
+    border-color: #f44336;
+    color: #f44336;
+}
+
+.declineButton:hover,
+.declineButton.active {
+    background: #f44336;
+    color: #fff;
+}
+
+.actionButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Details */
+.details {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.section {
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sectionTitle {
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: #ff0000;
+    letter-spacing: 0.15em;
+    margin: 0 0 1rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.1em;
+}
+
+.value {
+    font-size: 1rem;
+    color: #fff;
+}
+
+.textContent {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.videoLink {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: #ff0000;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    transition: all 0.3s ease;
+}
+
+.videoLink:hover {
+    background: #fff;
+    color: #ff0000;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .container {
+        padding: 5rem 1rem 2rem;
+    }
+
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .actionButton {
+        width: 100%;
+        text-align: center;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .voteButtons {
+        flex-direction: column;
+    }
+
+    .voteButton {
+        width: 100%;
+    }
+
+    .addRemark {
+        flex-direction: column;
+    }
+
+    .remarkInput {
+        width: 100%;
+    }
+
+    .addRemarkButton {
+        width: 100%;
+    }
+}
+
+/* ============================================= */
+/* VOTING SECTION                                */
+/* ============================================= */
+
+.votingSection {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.voteButtons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.voteButton {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    border: 2px solid;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.voteFor {
+    border-color: #4caf50;
+    color: #4caf50;
+}
+
+.voteFor:hover,
+.voteFor.voteActive {
+    background: #4caf50;
+    color: #fff;
+}
+
+.voteAgainst {
+    border-color: #f44336;
+    color: #f44336;
+}
+
+.voteAgainst:hover,
+.voteAgainst.voteActive {
+    background: #f44336;
+    color: #fff;
+}
+
+.voteButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.voteStatus {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0.5rem 0 0;
+}
+
+.voteStatus strong {
+    color: #fff;
+}
+
+.voteTally {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.875rem;
+    font-family: var(--font-mono);
+}
+
+.tallyFor {
+    color: #4caf50;
+}
+
+.tallyAgainst {
+    color: #f44336;
+}
+
+.tallyTotal {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================= */
+/* REMARKS SECTION                               */
+/* ============================================= */
+
+.remarksSection {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.addRemark {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.remarkInput {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+    transition: border-color 0.3s ease;
+}
+
+.remarkInput:focus {
+    outline: none;
+    border-color: #ff0000;
+}
+
+.remarkInput::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.addRemarkButton {
+    padding: 0.75rem 1.5rem;
+    background: #ff0000;
+    border: none;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.addRemarkButton:hover:not(:disabled) {
+    background: #fff;
+    color: #ff0000;
+}
+
+.addRemarkButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.remarksList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.noRemarks {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+    margin: 0;
+}
+
+.remarkItem {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 3px solid #ff0000;
+}
+
+.remarkHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.remarkAuthor {
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: #ff0000;
+    letter-spacing: 0.1em;
+}
+
+.deleteRemark {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color 0.3s ease;
+}
+
+.deleteRemark:hover {
+    color: #f44336;
+}
+
+.remarkText {
+    margin: 0;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+}

@@ -132,6 +132,34 @@
     color: rgba(255, 255, 255, 0.4);
 }
 
+/* Clickable Card Link */
+.cardLink {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.cardLink:hover {
+    border-color: #ff0000;
+    background: rgba(255, 0, 0, 0.05);
+}
+
+.cardAction {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #ff0000;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.cardLink:hover .cardAction {
+    background: #fff;
+    color: #ff0000;
+}
+
 /* Footer */
 .footer {
     text-align: center;
