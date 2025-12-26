@@ -7,11 +7,13 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { GLTF } from 'three-stdlib';
 
-// Model URLs - hosted on GitHub
+// Model URLs - hosted on GitHub (using single model for all LOD levels)
+const DRUM_MODEL_URL = 'https://raw.githubusercontent.com/onemore-adi/hb_website/optimization/public/drum.glb';
+
 const MODEL_URLS = {
-    low: 'https://raw.githubusercontent.com/onemore-adi/hb_website/optimization/public/drum-low.glb',
-    medium: 'https://raw.githubusercontent.com/onemore-adi/hb_website/optimization/public/drum-medium.glb',
-    high: 'https://raw.githubusercontent.com/onemore-adi/hb_website/optimization/public/drum.glb',
+    low: DRUM_MODEL_URL,
+    medium: DRUM_MODEL_URL,
+    high: DRUM_MODEL_URL,
 } as const;
 
 type LODLevel = 'low' | 'medium' | 'high';

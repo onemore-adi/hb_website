@@ -23,6 +23,8 @@ export function Chat() {
     const [isSending, setIsSending] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isChatEnabled, setIsChatEnabled] = useState(true);
+    const [isLoadingConfig, setIsLoadingConfig] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Page load animation
@@ -40,6 +42,26 @@ export function Chat() {
             navigate('/dashboard');
         }
     }, [user, userProfile, loading, navigate]);
+
+    // Subscribe to chat config
+    useEffect(() => {
+        const configRef = doc(db, 'config', 'chat');
+        const unsubscribe = onSnapshot(configRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.data();
+                setIsChatEnabled(data.isChatEnabled ?? true);
+            } else {
+                setIsChatEnabled(true);
+            }
+            setIsLoadingConfig(false);
+        }, (error) => {
+            console.error('Error fetching chat config:', error);
+            setIsChatEnabled(true);
+            setIsLoadingConfig(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     // Subscribe to messages (last 50)
     useEffect(() => {
@@ -66,7 +88,7 @@ export function Chat() {
 
     // Send message
     const handleSend = async () => {
-        if (!user || !userProfile || !newMessage.trim() || isSending) return;
+        if (!user || !userProfile || !newMessage.trim() || isSending || !isChatEnabled) return;
 
         setIsSending(true);
         try {
@@ -137,7 +159,7 @@ export function Chat() {
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
 
-    if (loading) {
+    if (loading || isLoadingConfig) {
         return (
             <div className={styles.page}>
                 <div className={styles.loadingContainer}>
@@ -157,6 +179,9 @@ export function Chat() {
                     <h1 className={styles.title}>BAND CHAT</h1>
                     <span className={styles.memberCount}>{MESSAGE_LIMIT} messages max</span>
 
+                    {!isChatEnabled && (
+                        <span className={styles.pausedBadge}>PAUSED</span>
+                    )}
                     {userProfile?.isAdmin && (
                         <button
                             className={styles.clearButton}
@@ -198,24 +223,31 @@ export function Chat() {
                 </div>
 
                 {/* Input */}
-                <div className={styles.inputContainer}>
-                    <input
-                        type="text"
-                        className={styles.input}
-                        placeholder="Type a message..."
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                        disabled={isSending}
-                    />
-                    <button
-                        className={styles.sendButton}
-                        onClick={handleSend}
-                        disabled={isSending || !newMessage.trim()}
-                    >
-                        {isSending ? '...' : 'SEND'}
-                    </button>
-                </div>
+                {isChatEnabled ? (
+                    <div className={styles.inputContainer}>
+                        <input
+                            type="text"
+                            className={styles.input}
+                            placeholder="Type a message..."
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                            disabled={isSending}
+                        />
+                        <button
+                            className={styles.sendButton}
+                            onClick={handleSend}
+                            disabled={isSending || !newMessage.trim()}
+                        >
+                            {isSending ? '...' : 'SEND'}
+                        </button>
+                    </div>
+                ) : (
+                    <div className={styles.pausedContainer}>
+                        <span className={styles.pausedIcon}>⏸</span>
+                        <span className={styles.pausedText}>Chat is currently paused by admin</span>
+                    </div>
+                )}
             </div>
         </div>
     );

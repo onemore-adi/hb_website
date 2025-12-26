@@ -12,6 +12,7 @@ const BandMemberArea = lazy(() => import('./components/BandMemberArea').then(m =
 const ApplicationsList = lazy(() => import('./components/ApplicationsList').then(m => ({ default: m.ApplicationsList })));
 const ApplicationDetail = lazy(() => import('./components/ApplicationDetail').then(m => ({ default: m.ApplicationDetail })));
 const Chat = lazy(() => import('./components/Chat').then(m => ({ default: m.Chat })));
+const MembersList = lazy(() => import('./components/MembersList').then(m => ({ default: m.MembersList })));
 
 // Loading fallback for route transitions
 const RouteLoader = () => (
@@ -48,6 +49,7 @@ root.render(
             <Route path="/applications" element={<ApplicationsList />} />
             <Route path="/applications/:id" element={<ApplicationDetail />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/members" element={<MembersList />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

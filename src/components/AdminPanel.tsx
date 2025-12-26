@@ -30,6 +30,8 @@ export function AdminPanel() {
     const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
     const [isAcceptingApplications, setIsAcceptingApplications] = useState(true);
     const [togglingApplications, setTogglingApplications] = useState(false);
+    const [isChatEnabled, setIsChatEnabled] = useState(true);
+    const [togglingChat, setTogglingChat] = useState(false);
 
     // Page load animation
     useEffect(() => {
@@ -58,7 +60,21 @@ export function AdminPanel() {
             }
         });
 
-        return () => unsubscribe();
+        // Chat config
+        const chatConfigRef = doc(db, 'config', 'chat');
+        const unsubscribeChat = onSnapshot(chatConfigRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.data();
+                setIsChatEnabled(data.isChatEnabled ?? true);
+            } else {
+                setIsChatEnabled(true);
+            }
+        });
+
+        return () => {
+            unsubscribe();
+            unsubscribeChat();
+        };
     }, [userProfile?.isAdmin]);
 
     // Toggle applications acceptance
@@ -88,6 +104,36 @@ export function AdminPanel() {
             alert('Failed to update application status. Please try again.');
         } finally {
             setTogglingApplications(false);
+        }
+    };
+
+    // Toggle chat
+    const handleToggleChat = async () => {
+        if (togglingChat || !user) return;
+        setTogglingChat(true);
+
+        try {
+            const configRef = doc(db, 'config', 'chat');
+            const configSnap = await getDoc(configRef);
+
+            if (configSnap.exists()) {
+                await updateDoc(configRef, {
+                    isChatEnabled: !isChatEnabled,
+                    updatedAt: serverTimestamp(),
+                    updatedBy: user.uid
+                });
+            } else {
+                await setDoc(configRef, {
+                    isChatEnabled: !isChatEnabled,
+                    updatedAt: serverTimestamp(),
+                    updatedBy: user.uid
+                });
+            }
+        } catch (error) {
+            console.error('Error toggling chat:', error);
+            alert('Failed to update chat status. Please try again.');
+        } finally {
+            setTogglingChat(false);
         }
     };
 
@@ -349,6 +395,26 @@ export function AdminPanel() {
                         </span>
                         <span className={styles.toggleStatus}>
                             {isAcceptingApplications ? 'ON' : 'OFF'}
+                        </span>
+                    </button>
+                </div>
+
+                {/* Chat Toggle */}
+                <div className={styles.toggleSection}>
+                    <span className={styles.toggleLabel}>
+                        BAND CHAT
+                    </span>
+                    <button
+                        className={`${styles.toggle} ${isChatEnabled ? styles.toggleOn : ''}`}
+                        onClick={handleToggleChat}
+                        disabled={togglingChat}
+                        aria-label={isChatEnabled ? 'Chat is enabled' : 'Chat is paused'}
+                    >
+                        <span className={styles.toggleTrack}>
+                            <span className={styles.toggleThumb} />
+                        </span>
+                        <span className={styles.toggleStatus}>
+                            {isChatEnabled ? 'ON' : 'OFF'}
                         </span>
                     </button>
                 </div>
