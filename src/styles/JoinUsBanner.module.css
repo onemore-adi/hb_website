@@ -419,11 +419,14 @@
 
     .sideContent {
         max-width: 100%;
-        min-height: 140px;
+        min-height: auto;
         text-align: center;
+        position: static;
     }
 
     .sidePanel {
+        position: relative;
+        inset: auto;
         align-items: center;
     }
 
@@ -457,6 +460,11 @@
 
     .statItem:hover {
         padding-left: 0.75rem;
+    }
+
+    .statsPanel {
+        min-height: auto;
+        padding: 1.25rem;
     }
 }
 

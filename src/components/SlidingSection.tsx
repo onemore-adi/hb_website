@@ -1,5 +1,48 @@
 import { useEffect, useRef } from 'react';
+import { motion, useMotionValue, useVelocity, useSpring, useTransform } from 'framer-motion';
 import styles from '../styles/SlidingSection.module.css';
+
+// Inertia Text Component - Skews based on scroll velocity
+function InertiaText({ scrollProgress }: { scrollProgress: number }) {
+    // Create a motion value that tracks scroll progress
+    const progress = useMotionValue(scrollProgress);
+
+    // Update the motion value when scrollProgress changes
+    useEffect(() => {
+        progress.set(scrollProgress);
+    }, [scrollProgress, progress]);
+
+    // Get velocity of the scroll progress changes
+    const velocity = useVelocity(progress);
+
+    // Apply spring physics for smooth, natural animation
+    const smoothVelocity = useSpring(velocity, {
+        damping: 25,
+        stiffness: 120,
+        mass: 0.5
+    });
+
+    // Transform velocity to skew angle
+    const skewX = useTransform(smoothVelocity, [-0.5, 0.5], [12, -12]);
+
+    // Calculate horizontal translation based on scroll progress
+    // Text moves from right to left as scrollProgress goes 0→1
+    const translateX = `calc(${50 - scrollProgress * 120}vw)`;
+
+    return (
+        <div className={styles.inertiaTextContainer}>
+            <motion.h2
+                className={styles.inertiaText}
+                style={{
+                    skewX,
+                    x: translateX
+                }}
+            >
+                To the memories made over time
+            </motion.h2>
+        </div>
+    );
+}
 
 type MediaItem = {
     type: 'image' | 'video' | 'youtube';
@@ -7,16 +50,18 @@ type MediaItem = {
 };
 
 // YouTube video ID for the last item
-const YOUTUBE_VIDEO_ID = '23Zomk7qBko';
+const YOUTUBE_VIDEO_ID = 'UlrCaozEmAE';
 
 const items: MediaItem[] = [
-    { type: 'image', src: "https://plus.unsplash.com/premium_photo-1682855223699-edb85ffa57b3?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-    { type: 'image', src: "https://images.unsplash.com/photo-1605340406960-f5b496c38b3d?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-    { type: 'image', src: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-    { type: 'image', src: "https://images.unsplash.com/photo-1521547418549-6a31aad7c177?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-    { type: 'image', src: "https://images.unsplash.com/photo-1550635707-e8c55839e834?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-    { type: 'image', src: "https://images.unsplash.com/photo-1614247912229-26a7e2114c0a?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-    { type: 'image', src: "https://images.unsplash.com/photo-1508979822114-db019a20d576?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+    { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637618/DSC04664_tixqnw.jpg" },
+    { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637617/DSC_1292_gmhvgy.jpg" },
+    { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637617/DSC_1311_jkmpfp.jpg" },
+    { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637618/DSC_1361_ekaqvi.jpg" },
+    { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637618/MIL_2765_s9amdw.jpg" },
+    { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637618/MIL_2899_zaym3l.jpg" },
+    { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637618/RSV-0497_e1njlo.jpg" },
+    { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637618/RSV-0636_vpn5ko.jpg" },
+    { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637617/IMG_1768_2_yd4uxj.jpg" },
     { type: 'youtube', src: YOUTUBE_VIDEO_ID }
 ];
 
@@ -151,6 +196,8 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
 
     return (
         <div className={styles.container}>
+            {/* Inertia Text Header */}
+            <InertiaText scrollProgress={scrollProgress} />
             <div
                 ref={trackRef}
                 id="image-track"

@@ -149,6 +149,58 @@
 }
 
 /* ============================================= */
+/* EXECUTIVE BODY (EB) BADGE                     */
+/* ============================================= */
+
+.ebMember {
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+}
+
+.ebMember:hover {
+    box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
+}
+
+.ebBadge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.ebLabel {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(135deg, #ffd700 0%, #f4a300 100%);
+    color: #000;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    border-radius: 3px;
+    font-family: var(--font-ui);
+    text-transform: uppercase;
+}
+
+.ebRole {
+    display: inline-block;
+    padding: 0.2rem 0.4rem;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    color: #ffd700;
+    font-size: 0.55rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border-radius: 2px;
+    font-family: var(--font-ui);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ============================================= */
 /* IMAGE                                         */
 /* ============================================= */
 

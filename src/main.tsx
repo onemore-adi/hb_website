@@ -1,12 +1,32 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { App } from './App';
-import { JoinUs } from './components/JoinUs';
-import { UserDashboard } from './components/UserDashboard';
-import { AdminPanel } from './components/AdminPanel';
-import { BandMemberArea } from './components/BandMemberArea';
+
+// Lazy load route components - only load when user navigates to them
+const JoinUs = lazy(() => import('./components/JoinUs').then(m => ({ default: m.JoinUs })));
+const UserDashboard = lazy(() => import('./components/UserDashboard').then(m => ({ default: m.UserDashboard })));
+const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
+const BandMemberArea = lazy(() => import('./components/BandMemberArea').then(m => ({ default: m.BandMemberArea })));
+const ApplicationsList = lazy(() => import('./components/ApplicationsList').then(m => ({ default: m.ApplicationsList })));
+const ApplicationDetail = lazy(() => import('./components/ApplicationDetail').then(m => ({ default: m.ApplicationDetail })));
+const Chat = lazy(() => import('./components/Chat').then(m => ({ default: m.Chat })));
+
+// Loading fallback for route transitions
+const RouteLoader = () => (
+  <div style={{
+    minHeight: '100vh',
+    background: '#000',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#fff',
+    fontFamily: 'Inter, sans-serif'
+  }}>
+    Loading...
+  </div>
+);
 
 // Get the root element
 const container = document.getElementById('root');
@@ -18,13 +38,18 @@ root.render(
   <React.StrictMode>
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path="/join" element={<JoinUs />} />
-          <Route path="/dashboard" element={<UserDashboard />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/band-area" element={<BandMemberArea />} />
-        </Routes>
+        <Suspense fallback={<RouteLoader />}>
+          <Routes>
+            <Route path="/" element={<App />} />
+            <Route path="/join" element={<JoinUs />} />
+            <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/band-area" element={<BandMemberArea />} />
+            <Route path="/applications" element={<ApplicationsList />} />
+            <Route path="/applications/:id" element={<ApplicationDetail />} />
+            <Route path="/chat" element={<Chat />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </AuthProvider>
   </React.StrictMode>

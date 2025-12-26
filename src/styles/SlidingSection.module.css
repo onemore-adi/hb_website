@@ -6,7 +6,8 @@
     background-color: black;
     margin: 0;
     overflow: hidden;
-    position: relative; /* Ensure it stays in flow or can be positioned */
+    position: relative;
+    /* Ensure it stays in flow or can be positioned */
 }
 
 .imageTrack {
@@ -15,8 +16,10 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(0%, -50%); /* Initial transform, will be overridden by inline styles */
-    user-select: none; /* Prevent text selection while dragging */
+    transform: translate(0%, -50%);
+    /* Initial transform, will be overridden by inline styles */
+    user-select: none;
+    /* Prevent text selection while dragging */
 }
 
 .image {
@@ -24,5 +27,87 @@
     height: 56vmin;
     object-fit: cover;
     object-position: 100% 50%;
-    pointer-events: none; /* Prevent image dragging default behavior */
+    pointer-events: none;
+    /* Prevent image dragging default behavior */
+}
+
+/* ============================================= */
+/* RESPONSIVE                                    */
+/* ============================================= */
+
+@media (max-width: 768px) {
+    .imageTrack {
+        gap: 3vmin;
+    }
+
+    .image {
+        width: 35vmin;
+        height: 50vmin;
+    }
+}
+
+@media (max-width: 480px) {
+    .imageTrack {
+        gap: 2.5vmin;
+    }
+
+    .image {
+        width: 30vmin;
+        height: 42vmin;
+    }
+}
+
+/* ============================================= */
+/* INERTIA TEXT - Velocity Skew Animation        */
+/* ============================================= */
+
+.inertiaTextContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    padding: 1.5rem 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.inertiaText {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: clamp(0.9rem, 2vw, 1.4rem);
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0;
+    padding: 0 2rem;
+    white-space: nowrap;
+    will-change: transform;
+    transform-origin: center center;
+}
+
+/* Responsive adjustments for inertia text */
+@media (max-width: 768px) {
+    .inertiaTextContainer {
+        padding: 1rem 0;
+    }
+
+    .inertiaText {
+        font-size: clamp(0.75rem, 2.5vw, 1rem);
+        letter-spacing: 0.15em;
+    }
+}
+
+@media (max-width: 480px) {
+    .inertiaTextContainer {
+        padding: 0.75rem 0;
+    }
+
+    .inertiaText {
+        font-size: 0.7rem;
+    }
 }

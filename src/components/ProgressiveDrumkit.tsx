@@ -76,7 +76,7 @@ export function ProgressiveDrumkit() {
         }
     }, [loadedLevels.high, loadedLevels.medium, currentLevel]);
 
-    // Scroll-based animation
+    // Scroll-based animation + trigger high LOD loading
     useFrame(() => {
         const targetScroll = window.scrollY / window.innerHeight;
         const progress = Math.min(Math.max(0, targetScroll), 1);
@@ -91,35 +91,32 @@ export function ProgressiveDrumkit() {
             const targetRotY = baseRotY + scrollLerp.current * 0.5;
             groupRef.current.rotation.y = targetRotY;
         }
+
+        // Trigger high model loading when user scrolls past 50% of hero
+        if (progress > 0.5 && !loadedLevels.high && loadedLevels.medium) {
+            useGLTF.preload(MODEL_URLS.high);
+        }
     });
 
-    // Preload models in order (low first for fastest initial display)
+    // Load low model immediately, medium right after low loads
     useEffect(() => {
         // Load low immediately
         useGLTF.preload(MODEL_URLS.low);
-
-        // Load medium after a small delay
-        const mediumTimer = setTimeout(() => {
-            useGLTF.preload(MODEL_URLS.medium);
-        }, 100);
-
-        // Load high after medium starts
-        const highTimer = setTimeout(() => {
-            useGLTF.preload(MODEL_URLS.high);
-        }, 200);
-
-        return () => {
-            clearTimeout(mediumTimer);
-            clearTimeout(highTimer);
-        };
     }, []);
+
+    // When low is loaded, start loading medium immediately
+    useEffect(() => {
+        if (loadedLevels.low && !loadedLevels.medium) {
+            useGLTF.preload(MODEL_URLS.medium);
+        }
+    }, [loadedLevels.low, loadedLevels.medium]);
 
     // Effect to detect when models are loaded
     useEffect(() => {
         const checkLoaded = () => {
             try {
                 // Check if each model is in the cache
-                const lowCached = useGLTF.preload(MODEL_URLS.low);
+                useGLTF.preload(MODEL_URLS.low);
                 markLoaded('low');
             } catch {
                 // Not loaded yet

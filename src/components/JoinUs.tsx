@@ -1,48 +1,95 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { doc, onSnapshot, collection, query, where, getDocs, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../context/AuthContext';
+import type { Application } from '../types/Application';
 import styles from '../styles/JoinUs.module.css';
 
-// Field options for dropdown
-const fieldOptions = [
+// Primary Instrument options (matching Google Form)
+const instrumentOptions = [
     'Vocals',
-    'Guitar',
-    'Bass',
-    'Drums',
-    'Keys',
-    'Production',
-    'Management',
-    'Photography',
-    'Videography',
-    'Other'
+    'Guitar (Electric/Acoustic/Bass)',
+    'Drums/Percussion',
+    'Keyboard/Piano/Tabla',
+    'Violin/Strings',
+    'Saxophone/Brass',
+    'Indian Classical Instrument',
+    'Other (Creative & Management Team)'
 ];
+
+// Musical styles options (matching Google Form)
+const styleOptions = [
+    'Fusion/World Music',
+    'Indian/Western Classical Music',
+    'Bollywood',
+    'Hip-hop/Rap/RnB',
+    'Rock/Metal/Blues',
+    'Pop/Electronic'
+];
+
+// Year options
+const yearOptions = [
+    '1st Year (Freshman)',
+    '2nd Year (Sophomore)',
+    '3rd Year (Pre-final)',
+    'M Tech',
+    'Postgraduate Student'
+];
+
+// Metronome options
+const metronomeOptions = ['Always', 'Often', 'Sometimes', 'Rarely', 'Never'];
+
+// Commitment scale
+const commitmentScale = [1, 2, 3, 4, 5];
 
 interface FormData {
     name: string;
     rollNo: string;
-    field: string;
-    otherField: string;
+    phone: string;
     department: string;
     year: string;
-    performanceLink: string;
-    message: string;
+    experience: string;
+    commitment: string;
+    musicalStyles: string[];
+    field: string;
+    otherField: string;
+    yearsExperience: string;
+    metronomeUsage: string;
+    musicalInfluences: string;
+    videoLink: string;
 }
 
 export function JoinUs() {
+    const { user, userProfile } = useAuth();
     const [isLoaded, setIsLoaded] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isHoveringSubmit, setIsHoveringSubmit] = useState(false);
     const [typingTimeout, setTypingTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+    const [isAcceptingApplications, setIsAcceptingApplications] = useState(true);
+    const [isLoadingConfig, setIsLoadingConfig] = useState(true);
+
+    // Application state
+    const [existingApplication, setExistingApplication] = useState<Application | null>(null);
+    const [isLoadingApplication, setIsLoadingApplication] = useState(true);
 
     const [formData, setFormData] = useState<FormData>({
         name: '',
         rollNo: '',
-        field: '',
-        otherField: '',
+        phone: '',
         department: '',
         year: '',
-        performanceLink: '',
-        message: '',
+        experience: '',
+        commitment: '',
+        musicalStyles: [],
+        field: '',
+        otherField: '',
+        yearsExperience: '',
+        metronomeUsage: '',
+        musicalInfluences: '',
+        videoLink: '',
     });
 
     // Page load animation trigger
@@ -51,22 +98,140 @@ export function JoinUs() {
         return () => clearTimeout(timer);
     }, []);
 
-    // Handle input change with typing indicator
-    const handleChange = (key: string, value: string) => {
-        setFormData(prev => ({ ...prev, [key]: value }));
+    // Subscribe to applications config
+    useEffect(() => {
+        const configRef = doc(db, 'config', 'applications');
+        const unsubscribe = onSnapshot(configRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.data();
+                setIsAcceptingApplications(data.isAcceptingApplications ?? true);
+            } else {
+                setIsAcceptingApplications(true);
+            }
+            setIsLoadingConfig(false);
+        }, (error) => {
+            console.error('Error fetching config:', error);
+            setIsAcceptingApplications(true);
+            setIsLoadingConfig(false);
+        });
 
-        // Show typing indicator
+        return () => unsubscribe();
+    }, []);
+
+    // Check for existing application when user is logged in
+    useEffect(() => {
+        if (!user) {
+            setIsLoadingApplication(false);
+            setExistingApplication(null);
+            return;
+        }
+
+        const checkExistingApplication = async () => {
+            try {
+                const applicationsRef = collection(db, 'applications');
+                const emailQuery = query(applicationsRef, where('email', '==', user.email));
+                const emailSnapshot = await getDocs(emailQuery);
+
+                if (!emailSnapshot.empty) {
+                    const appDoc = emailSnapshot.docs[0];
+                    const appData = { id: appDoc.id, ...appDoc.data() } as Application;
+                    setExistingApplication(appData);
+
+                    // Link user if not already linked
+                    if (!appData.linkedUserId && user.uid) {
+                        await updateDoc(doc(db, 'applications', appDoc.id), {
+                            linkedUserId: user.uid
+                        });
+                    }
+                } else {
+                    setExistingApplication(null);
+                }
+            } catch (error) {
+                console.error('Error checking application:', error);
+                setExistingApplication(null);
+            } finally {
+                setIsLoadingApplication(false);
+            }
+        };
+
+        checkExistingApplication();
+    }, [user]);
+
+    // Pre-fill name from user profile
+    useEffect(() => {
+        if (userProfile && !existingApplication) {
+            setFormData(prev => ({
+                ...prev,
+                name: userProfile.name || prev.name,
+            }));
+        }
+    }, [userProfile, existingApplication]);
+
+    // Handle input change with typing indicator
+    const handleChange = (key: string, value: string | string[]) => {
+        setFormData(prev => ({ ...prev, [key]: value }));
         setIsTyping(true);
         if (typingTimeout) clearTimeout(typingTimeout);
         const timeout = setTimeout(() => setIsTyping(false), 1000);
         setTypingTimeout(timeout);
     };
 
-    // Handle submit
-    const handleSubmit = (e: React.FormEvent) => {
+    // Handle checkbox array change
+    const handleCheckboxChange = (key: string, value: string, checked: boolean) => {
+        setFormData(prev => {
+            const current = prev[key as keyof FormData] as string[];
+            if (checked) {
+                return { ...prev, [key]: [...current, value] };
+            } else {
+                return { ...prev, [key]: current.filter(v => v !== value) };
+            }
+        });
+        setIsTyping(true);
+        if (typingTimeout) clearTimeout(typingTimeout);
+        const timeout = setTimeout(() => setIsTyping(false), 1000);
+        setTypingTimeout(timeout);
+    };
+
+    // Handle submit - save to Firestore
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Form submitted:', formData);
-        setIsSubmitted(true);
+        if (!user || isSubmitting) return;
+
+        setIsSubmitting(true);
+        try {
+            const applicationId = formData.rollNo.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            const applicationRef = doc(db, 'applications', applicationId);
+
+            await setDoc(applicationRef, {
+                rollNo: formData.rollNo.toUpperCase(),
+                email: user.email,
+                name: formData.name,
+                phone: formData.phone,
+                department: formData.department,
+                year: formData.year,
+                experience: formData.experience,
+                commitment: formData.commitment,
+                musicalStyles: formData.musicalStyles.join(', '),
+                field: formData.field,
+                otherField: formData.field.includes('Other') ? formData.otherField : '',
+                yearsExperience: formData.yearsExperience,
+                metronomeUsage: formData.metronomeUsage,
+                musicalInfluences: formData.musicalInfluences,
+                videoLink: formData.videoLink,
+                status: 'pending',
+                source: 'website',
+                linkedUserId: user.uid,
+                submittedAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            });
+
+            setIsSubmitted(true);
+        } catch (error) {
+            console.error('Error submitting application:', error);
+            alert('Failed to submit application. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // Check if form is valid
@@ -74,12 +239,30 @@ export function JoinUs() {
         return (
             formData.name.trim() !== '' &&
             formData.rollNo.trim() !== '' &&
-            formData.field !== '' &&
-            (formData.field !== 'Other' || formData.otherField.trim() !== '') &&
+            formData.phone.trim() !== '' &&
             formData.department.trim() !== '' &&
-            formData.year.trim() !== ''
+            formData.year !== '' &&
+            formData.field !== '' &&
+            (formData.field.includes('Other') ? formData.otherField.trim() !== '' : true) &&
+            formData.musicalStyles.length > 0 &&
+            formData.yearsExperience.trim() !== '' &&
+            formData.musicalInfluences.trim() !== ''
         );
     };
+
+    // Get status badge
+    const getStatusBadge = (status: string) => {
+        switch (status) {
+            case 'accepted':
+                return <span className={`${styles.statusBadge} ${styles.statusAccepted}`}>✓ ACCEPTED</span>;
+            case 'declined':
+                return <span className={`${styles.statusBadge} ${styles.statusDeclined}`}>✗ DECLINED</span>;
+            default:
+                return <span className={`${styles.statusBadge} ${styles.statusPending}`}>⏳ PENDING</span>;
+        }
+    };
+
+    const isLoading = isLoadingConfig || (user && isLoadingApplication);
 
     return (
         <div className={`${styles.page} ${isLoaded ? styles.loaded : ''} ${isHoveringSubmit ? styles.inverted : ''}`}>
@@ -110,153 +293,325 @@ export function JoinUs() {
                     </div>
                 </div>
 
-                {/* Right Side - Form */}
+                {/* Right Side - Content */}
                 <div className={styles.rightPanel}>
-                    {/* Title with glitch animation */}
-                    <h1 className={styles.title}>
-                        <span className={styles.titleText}>JOIN THE PULSE</span>
-                    </h1>
+                    {isLoading ? (
+                        /* Loading State */
+                        <div className={styles.loadingContainer}>
+                            <div className={styles.loadingPulse} />
+                        </div>
+                    ) : existingApplication ? (
+                        /* Existing Application - Show Status */
+                        <div className={styles.applicationView}>
+                            <h1 className={styles.title}>
+                                <span className={styles.titleText}>YOUR APPLICATION</span>
+                            </h1>
 
-                    {!isSubmitted ? (
-                        <form onSubmit={handleSubmit} className={styles.form}>
-                            {/* Name */}
-                            <div className={styles.field}>
-                                <label className={styles.label}>
-                                    NAME <span className={styles.hint}>your full name</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    className={styles.input}
-                                    value={formData.name}
-                                    onChange={(e) => handleChange('name', e.target.value)}
-                                    required
-                                />
+                            <div className={styles.statusSection}>
+                                {getStatusBadge(existingApplication.status)}
+                                {existingApplication.status === 'pending' && (
+                                    <p className={styles.statusMessage}>
+                                        Your application is being reviewed. We'll get back to you soon!
+                                    </p>
+                                )}
+                                {existingApplication.status === 'accepted' && (
+                                    <p className={styles.statusMessage}>
+                                        Welcome to HeartBeats! Check your email for next steps.
+                                    </p>
+                                )}
+                                {existingApplication.status === 'declined' && (
+                                    <p className={styles.statusMessage}>
+                                        Unfortunately, your application was not successful this time.
+                                    </p>
+                                )}
                             </div>
 
-                            {/* Roll No */}
-                            <div className={styles.field}>
-                                <label className={styles.label}>
-                                    ROLL NO <span className={styles.hint}>e.g., 121CS0XXX</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    className={styles.input}
-                                    value={formData.rollNo}
-                                    onChange={(e) => handleChange('rollNo', e.target.value)}
-                                    required
-                                />
-                            </div>
-
-                            {/* Field to Apply */}
-                            <div className={styles.field}>
-                                <label className={styles.label}>
-                                    FIELD TO APPLY <span className={styles.hint}>select your role</span>
-                                </label>
-                                <select
-                                    className={styles.select}
-                                    value={formData.field}
-                                    onChange={(e) => handleChange('field', e.target.value)}
-                                    required
-                                >
-                                    <option value="">SELECT...</option>
-                                    {fieldOptions.map(option => (
-                                        <option key={option} value={option}>{option.toUpperCase()}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Other Field - Conditional */}
-                            {formData.field === 'Other' && (
-                                <div className={styles.field}>
-                                    <label className={styles.label}>
-                                        SPECIFY FIELD <span className={styles.hint}>describe your skill</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={formData.otherField}
-                                        onChange={(e) => handleChange('otherField', e.target.value)}
-                                        required
-                                    />
+                            <div className={styles.applicationDetails}>
+                                <div className={styles.detailRow}>
+                                    <span className={styles.detailLabel}>NAME</span>
+                                    <span className={styles.detailValue}>{existingApplication.name}</span>
                                 </div>
-                            )}
-
-                            {/* Department */}
-                            <div className={styles.field}>
-                                <label className={styles.label}>
-                                    DEPARTMENT <span className={styles.hint}>e.g., Computer Science</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    className={styles.input}
-                                    value={formData.department}
-                                    onChange={(e) => handleChange('department', e.target.value)}
-                                    required
-                                />
+                                <div className={styles.detailRow}>
+                                    <span className={styles.detailLabel}>ROLL NO</span>
+                                    <span className={styles.detailValue}>{existingApplication.rollNo}</span>
+                                </div>
+                                <div className={styles.detailRow}>
+                                    <span className={styles.detailLabel}>INSTRUMENT</span>
+                                    <span className={styles.detailValue}>{existingApplication.field}</span>
+                                </div>
+                                <div className={styles.detailRow}>
+                                    <span className={styles.detailLabel}>DEPARTMENT</span>
+                                    <span className={styles.detailValue}>{existingApplication.department}</span>
+                                </div>
+                                <div className={styles.detailRow}>
+                                    <span className={styles.detailLabel}>YEAR</span>
+                                    <span className={styles.detailValue}>{existingApplication.year}</span>
+                                </div>
+                                {existingApplication.videoLink && (
+                                    <div className={styles.detailRow}>
+                                        <span className={styles.detailLabel}>VIDEO</span>
+                                        <a href={existingApplication.videoLink} target="_blank" rel="noopener noreferrer" className={styles.detailLink}>
+                                            Watch →
+                                        </a>
+                                    </div>
+                                )}
                             </div>
-
-                            {/* Year */}
-                            <div className={styles.field}>
-                                <label className={styles.label}>
-                                    YEAR <span className={styles.hint}>e.g., 2nd Year</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    className={styles.input}
-                                    value={formData.year}
-                                    onChange={(e) => handleChange('year', e.target.value)}
-                                    required
-                                />
-                            </div>
-
-                            {/* Performance Link */}
-                            <div className={styles.field}>
-                                <label className={styles.label}>
-                                    PAST PERFORMANCE <span className={styles.hint}>youtube/drive link</span>
-                                </label>
-                                <input
-                                    type="url"
-                                    className={styles.input}
-                                    value={formData.performanceLink}
-                                    onChange={(e) => handleChange('performanceLink', e.target.value)}
-                                    placeholder="https://..."
-                                />
-                            </div>
-
-                            {/* Message */}
-                            <div className={styles.field}>
-                                <label className={styles.label}>
-                                    WHY HEARTBEATS? <span className={styles.hint}>tell us your story</span>
-                                </label>
-                                <textarea
-                                    className={styles.textarea}
-                                    value={formData.message}
-                                    onChange={(e) => handleChange('message', e.target.value)}
-                                    rows={4}
-                                />
-                            </div>
-
-                            {/* Submit Button */}
-                            <button
-                                type="submit"
-                                className={styles.submitButton}
-                                disabled={!isFormValid()}
-                                onMouseEnter={() => setIsHoveringSubmit(true)}
-                                onMouseLeave={() => setIsHoveringSubmit(false)}
-                            >
-                                COMMIT →
-                            </button>
-                        </form>
-                    ) : (
-                        /* Success State */
-                        <div className={styles.successContainer}>
-                            <div className={styles.successIcon}>✓</div>
-                            <h2 className={styles.successTitle}>SIGNAL RECEIVED</h2>
-                            <p className={styles.successMessage}>WE'LL BE IN TOUCH.</p>
-                            <Link to="/" className={styles.homeLink}>
-                                ← RETURN HOME
+                        </div>
+                    ) : !user ? (
+                        /* Not Logged In - Login Prompt */
+                        <div className={styles.loginPrompt}>
+                            <h1 className={styles.title}>
+                                <span className={styles.titleText}>JOIN US</span>
+                            </h1>
+                            <p className={styles.promptText}>
+                                Please sign in with your Google account to submit an application.
+                            </p>
+                            <Link to="/dashboard" className={styles.loginButton}>
+                                SIGN IN TO APPLY →
                             </Link>
                         </div>
+                    ) : !isAcceptingApplications ? (
+                        /* Applications Closed */
+                        <div className={styles.closedContainer}>
+                            <h1 className={styles.title}>
+                                <span className={styles.titleText}>APPLICATIONS CLOSED</span>
+                            </h1>
+                            <p className={styles.closedText}>
+                                We're currently not accepting new applications. Check back later or follow us for updates.
+                            </p>
+                        </div>
+                    ) : isSubmitted ? (
+                        /* Submission Success */
+                        <div className={styles.successContainer}>
+                            <div className={styles.successIcon}>✓</div>
+                            <h1 className={styles.title}>
+                                <span className={styles.titleText}>APPLICATION SUBMITTED</span>
+                            </h1>
+                            <p className={styles.successText}>
+                                Thank you for applying to HeartBeats! We'll review your application and get back to you soon.
+                            </p>
+                        </div>
+                    ) : (
+                        /* Application Form */
+                        <>
+                            <h1 className={styles.title}>
+                                <span className={styles.titleText}>JOIN HEARTBEATS</span>
+                            </h1>
+
+                            <form onSubmit={handleSubmit} className={styles.form}>
+                                {/* Section: Personal Info */}
+                                <div className={styles.section}>
+                                    <h2 className={styles.sectionTitle}>PERSONAL INFO</h2>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>FULL NAME *</label>
+                                        <input
+                                            type="text"
+                                            className={styles.input}
+                                            value={formData.name}
+                                            onChange={(e) => handleChange('name', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>ROLL NUMBER *</label>
+                                        <input
+                                            type="text"
+                                            className={styles.input}
+                                            placeholder="e.g., 125CS0001"
+                                            value={formData.rollNo}
+                                            onChange={(e) => handleChange('rollNo', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>PHONE (WHATSAPP) *</label>
+                                        <input
+                                            type="tel"
+                                            className={styles.input}
+                                            placeholder="e.g., 9876543210"
+                                            value={formData.phone}
+                                            onChange={(e) => handleChange('phone', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>YEAR OF STUDY *</label>
+                                        <select
+                                            className={styles.select}
+                                            value={formData.year}
+                                            onChange={(e) => handleChange('year', e.target.value)}
+                                            required
+                                        >
+                                            <option value="">SELECT...</option>
+                                            {yearOptions.map(opt => (
+                                                <option key={opt} value={opt}>{opt}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>DEPARTMENT *</label>
+                                        <input
+                                            type="text"
+                                            className={styles.input}
+                                            placeholder="e.g., Computer Science and Engineering"
+                                            value={formData.department}
+                                            onChange={(e) => handleChange('department', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Section: Musical Profile */}
+                                <div className={styles.section}>
+                                    <h2 className={styles.sectionTitle}>MUSICAL PROFILE</h2>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>PRIOR BAND/PERFORMANCE EXPERIENCE *</label>
+                                        <textarea
+                                            className={styles.textarea}
+                                            rows={3}
+                                            placeholder="Describe any previous band or performance experience..."
+                                            value={formData.experience}
+                                            onChange={(e) => handleChange('experience', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>COMMITMENT LEVEL (1-5) *</label>
+                                        <p className={styles.hint}>How committed can you be to weekly practice and college events?</p>
+                                        <div className={styles.scaleContainer}>
+                                            {commitmentScale.map(n => (
+                                                <button
+                                                    key={n}
+                                                    type="button"
+                                                    className={`${styles.scaleButton} ${formData.commitment === String(n) ? styles.scaleActive : ''}`}
+                                                    onClick={() => handleChange('commitment', String(n))}
+                                                >
+                                                    {n}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>MUSICAL STYLES * <span className={styles.hint}>(select all that apply)</span></label>
+                                        <div className={styles.checkboxGroup}>
+                                            {styleOptions.map(style => (
+                                                <label key={style} className={styles.checkbox}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={formData.musicalStyles.includes(style)}
+                                                        onChange={(e) => handleCheckboxChange('musicalStyles', style, e.target.checked)}
+                                                    />
+                                                    <span>{style}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>PRIMARY INSTRUMENT *</label>
+                                        <select
+                                            className={styles.select}
+                                            value={formData.field}
+                                            onChange={(e) => handleChange('field', e.target.value)}
+                                            required
+                                        >
+                                            <option value="">SELECT...</option>
+                                            {instrumentOptions.map(opt => (
+                                                <option key={opt} value={opt}>{opt}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {formData.field.includes('Other') && (
+                                        <div className={styles.field}>
+                                            <label className={styles.label}>SPECIFY ROLE *</label>
+                                            <input
+                                                type="text"
+                                                className={styles.input}
+                                                placeholder="e.g., Band Manager, Video Editor, Designer..."
+                                                value={formData.otherField}
+                                                onChange={(e) => handleChange('otherField', e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>YEARS OF EXPERIENCE *</label>
+                                        <input
+                                            type="text"
+                                            className={styles.input}
+                                            placeholder="e.g., 3 years"
+                                            value={formData.yearsExperience}
+                                            onChange={(e) => handleChange('yearsExperience', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>METRONOME USAGE</label>
+                                        <select
+                                            className={styles.select}
+                                            value={formData.metronomeUsage}
+                                            onChange={(e) => handleChange('metronomeUsage', e.target.value)}
+                                        >
+                                            <option value="">SELECT...</option>
+                                            {metronomeOptions.map(opt => (
+                                                <option key={opt} value={opt}>{opt}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>TOP 3 MUSICAL INFLUENCES *</label>
+                                        <textarea
+                                            className={styles.textarea}
+                                            rows={2}
+                                            placeholder="e.g., A.R. Rahman, Coldplay, Prateek Kuhad"
+                                            value={formData.musicalInfluences}
+                                            onChange={(e) => handleChange('musicalInfluences', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Section: Audition */}
+                                <div className={styles.section}>
+                                    <h2 className={styles.sectionTitle}>AUDITION VIDEO</h2>
+
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>VIDEO LINK</label>
+                                        <p className={styles.hint}>Upload to Google Drive/YouTube and share the link (max 90 seconds)</p>
+                                        <input
+                                            type="url"
+                                            className={styles.input}
+                                            placeholder="https://drive.google.com/..."
+                                            value={formData.videoLink}
+                                            onChange={(e) => handleChange('videoLink', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Submit Button */}
+                                <button
+                                    type="submit"
+                                    className={styles.submitButton}
+                                    disabled={isSubmitting || !isFormValid()}
+                                    onMouseEnter={() => setIsHoveringSubmit(true)}
+                                    onMouseLeave={() => setIsHoveringSubmit(false)}
+                                >
+                                    {isSubmitting ? 'SUBMITTING...' : 'SUBMIT APPLICATION'}
+                                </button>
+                            </form>
+                        </>
                     )}
                 </div>
             </div>

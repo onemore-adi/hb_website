@@ -3,12 +3,14 @@
 import { Canvas } from "@react-three/fiber";
 import { Scene } from "../Scene";
 import { Leva } from "leva";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { SlidingSection } from "./components/SlidingSection";
-import { BandMembers } from "./components/BandMembers";
 import { Navbar } from "./components/Navbar";
-import { JoinUsBanner } from "./components/JoinUsBanner";
-import { ContactFooter } from "./components/ContactFooter";
+
+// Lazy load below-fold components - only load when user scrolls to them
+const BandMembers = lazy(() => import("./components/BandMembers").then(m => ({ default: m.BandMembers })));
+const JoinUsBanner = lazy(() => import("./components/JoinUsBanner").then(m => ({ default: m.JoinUsBanner })));
+const ContactFooter = lazy(() => import("./components/ContactFooter").then(m => ({ default: m.ContactFooter })));
 
 export function App() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -157,9 +159,11 @@ export function App() {
         margin: 0,
         padding: 0,
       }}>
-        <BandMembers />
-        <JoinUsBanner />
-        <ContactFooter />
+        <Suspense fallback={<div style={{ minHeight: '100vh', background: '#000' }} />}>
+          <BandMembers />
+          <JoinUsBanner />
+          <ContactFooter />
+        </Suspense>
       </div>
 
     </div>
