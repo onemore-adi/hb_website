@@ -1,33 +1,81 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useVelocity, useSpring, useTransform } from 'framer-motion';
 import styles from '../styles/SlidingSection.module.css';
 
-// Inertia Text Component - Skews based on scroll velocity
+// Hook to detect mobile device (shared matching App.tsx logic)
+function useIsMobile() {
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+    return isMobile;
+}
+
+// Inertia Text Component - Hybrid Approach
+// Desktop: Framer Motion (Spring Physics)
+// Mobile: CSS Transition (Lightweight)
 function InertiaText({ scrollProgress }: { scrollProgress: number }) {
-    // Create a motion value that tracks scroll progress
+    const isMobile = useIsMobile();
+
+    // --- DESKTOP LOGIC (Framer Motion) ---
     const progress = useMotionValue(scrollProgress);
 
-    // Update the motion value when scrollProgress changes
     useEffect(() => {
-        progress.set(scrollProgress);
-    }, [scrollProgress, progress]);
+        if (!isMobile) {
+            progress.set(scrollProgress);
+        }
+    }, [scrollProgress, progress, isMobile]);
 
-    // Get velocity of the scroll progress changes
     const velocity = useVelocity(progress);
-
-    // Apply spring physics for smooth, natural animation
     const smoothVelocity = useSpring(velocity, {
         damping: 25,
         stiffness: 120,
         mass: 0.5
     });
 
-    // Transform velocity to skew angle
     const skewX = useTransform(smoothVelocity, [-0.5, 0.5], [12, -12]);
+    const translateXMotion = useTransform(progress, p => `calc(${50 - p * 120}vw)`);
 
-    // Calculate horizontal translation based on scroll progress
-    // Text moves from right to left as scrollProgress goes 0→1
-    const translateX = `calc(${50 - scrollProgress * 120}vw)`;
+    // --- MOBILE LOGIC (CSS) ---
+    const prevProgressRef = useRef(scrollProgress);
+    const [mobileSkewAngle, setMobileSkewAngle] = useState(0);
+
+    useEffect(() => {
+        if (!isMobile) return;
+
+        const delta = scrollProgress - prevProgressRef.current;
+        prevProgressRef.current = scrollProgress;
+
+        const targetSkew = Math.max(-12, Math.min(12, delta * 150));
+        setMobileSkewAngle(targetSkew);
+
+        const timeout = setTimeout(() => {
+            setMobileSkewAngle(0);
+        }, 150);
+
+        return () => clearTimeout(timeout);
+    }, [scrollProgress, isMobile]);
+
+    const mobileTranslateX = 50 - scrollProgress * 120;
+
+    if (isMobile) {
+        return (
+            <div className={styles.inertiaTextContainer}>
+                <h2
+                    className={styles.inertiaText}
+                    style={{
+                        transform: `translateX(${mobileTranslateX}vw) skewX(${mobileSkewAngle}deg)`,
+                        transition: 'transform 0.15s ease-out'
+                    }}
+                >
+                    To the memories made over time
+                </h2>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.inertiaTextContainer}>
@@ -35,7 +83,7 @@ function InertiaText({ scrollProgress }: { scrollProgress: number }) {
                 className={styles.inertiaText}
                 style={{
                     skewX,
-                    x: translateX
+                    x: translateXMotion
                 }}
             >
                 To the memories made over time
@@ -51,6 +99,101 @@ type MediaItem = {
 
 // YouTube video ID for the last item
 const YOUTUBE_VIDEO_ID = 'UlrCaozEmAE';
+
+// Lazy YouTube Component - Shows thumbnail first, loads iframe only when needed
+interface LazyYouTubeProps {
+    videoId: string;
+    shouldLoad: boolean;
+    style?: React.CSSProperties;
+    className?: string;
+}
+
+function LazyYouTube({ videoId, shouldLoad, style, className }: LazyYouTubeProps) {
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [hasInteracted, setHasInteracted] = useState(false);
+
+    // Load iframe when shouldLoad becomes true OR user clicks
+    const showIframe = isLoaded || shouldLoad || hasInteracted;
+
+    // YouTube thumbnail URL (maxresdefault is highest quality)
+    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    // Fallback to hqdefault if maxres doesn't exist
+    const fallbackUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+    if (!showIframe) {
+        return (
+            <div
+                className={className}
+                style={{
+                    ...style,
+                    cursor: 'pointer',
+                    position: 'relative'
+                }}
+                onClick={() => setHasInteracted(true)}
+            >
+                {/* Thumbnail Image */}
+                <img
+                    src={thumbnailUrl}
+                    onError={(e) => {
+                        // Fallback if maxresdefault doesn't exist
+                        (e.target as HTMLImageElement).src = fallbackUrl;
+                    }}
+                    alt="Video thumbnail"
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                    }}
+                    loading="lazy"
+                />
+                {/* Play Button Overlay */}
+                <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    pointerEvents: 'none'
+                }}>
+                    <div style={{
+                        width: '80px',
+                        height: '80px',
+                        backgroundColor: 'rgba(255, 0, 0, 0.9)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.5)',
+                        transition: 'transform 0.3s ease'
+                    }}>
+                        {/* Play triangle */}
+                        <div style={{
+                            width: 0,
+                            height: 0,
+                            borderTop: '15px solid transparent',
+                            borderBottom: '15px solid transparent',
+                            borderLeft: '25px solid white',
+                            marginLeft: '5px'
+                        }} />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <iframe
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
+            title="YouTube video"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className={className}
+            style={style}
+            onLoad={() => setIsLoaded(true)}
+        />
+    );
+}
 
 const items: MediaItem[] = [
     { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637618/DSC04664_tixqnw.jpg" },
@@ -171,25 +314,33 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
             // styles.image class handles the base size (40vmin x 56vmin)
         };
 
-        const Tag = item.type === 'video' ? 'video' : 'img';
-        const attrs = item.type === 'video' ? {
-            autoPlay: true,
-            muted: true,
-            loop: true,
-            playsInline: true,
-            src: item.src
-        } : {
-            src: item.src,
-            draggable: false,
-            alt: `Slide ${index + 1}`
-        };
+        if (item.type === 'video') {
+            return (
+                <video
+                    key={index}
+                    src={item.src}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className={!isOverlay ? styles.image : undefined}
+                    style={commonStyle}
+                />
+            );
+        }
 
         return (
-            <Tag
+            <img
                 key={index}
+                src={item.src}
+                alt={`Slide ${index + 1}`}
+                width={800}
+                height={1120}
+                loading="lazy"
+                decoding="async"
+                draggable={false}
                 className={!isOverlay ? styles.image : undefined}
                 style={commonStyle}
-                {...attrs}
             />
         );
     };
@@ -218,12 +369,9 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                                 style={{ overflow: 'hidden', position: 'relative' }}
                             >
                                 {item.type === 'youtube' ? (
-                                    <iframe
-                                        src={`https://www.youtube.com/embed/${item.src}?autoplay=1&mute=1&loop=1&playlist=${item.src}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
-                                        title="YouTube video"
-                                        frameBorder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowFullScreen
+                                    <LazyYouTube
+                                        videoId={item.src}
+                                        shouldLoad={expansionProgress > 0.1}
                                         style={{
                                             width: '100vw',
                                             height: '100vh',
@@ -233,7 +381,7 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                                             left: '50%',
                                             transform: 'translate(-50%, -50%)',
                                             border: 'none',
-                                            pointerEvents: 'none' // Prevent interaction with YouTube controls
+                                            pointerEvents: 'none'
                                         }}
                                     />
                                 ) : item.type === 'video' ? (
@@ -259,6 +407,8 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                                         src={item.src}
                                         draggable="false"
                                         alt={`Slide ${index + 1}`}
+                                        loading="lazy"
+                                        decoding="async"
                                         style={{
                                             width: '100vw',
                                             height: '100vh',
@@ -306,12 +456,9 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                     Render the last item content again for the full screen overlay 
                 */}
                 {items[items.length - 1].type === 'youtube' ? (
-                    <iframe
-                        src={`https://www.youtube.com/embed/${items[items.length - 1].src}?autoplay=1&mute=1&loop=1&playlist=${items[items.length - 1].src}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
-                        title="YouTube video"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
+                    <LazyYouTube
+                        videoId={items[items.length - 1].src}
+                        shouldLoad={expansionProgress > 0.1}
                         style={{
                             width: '100%',
                             height: '100%',
@@ -335,6 +482,8 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                 ) : (
                     <img
                         src={items[items.length - 1].src}
+                        loading="lazy"
+                        decoding="async"
                         style={{
                             width: '100%',
                             height: '100%',

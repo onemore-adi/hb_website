@@ -128,9 +128,10 @@ export function BandMembers() {
     const sectionRef = useRef<HTMLDivElement>(null);
     const trackRef = useRef<HTMLDivElement>(null);
     const [scrollProgress, setScrollProgress] = useState(0);
+    const tickingRef = useRef(false);
 
-    // Scroll handler for horizontal scroll linked to vertical scroll
-    const handleScroll = useCallback(() => {
+    // Core update logic - Separated for rAF throttling
+    const updateScroll = useCallback(() => {
         if (!sectionRef.current || !trackRef.current) return;
 
         const section = sectionRef.current;
@@ -165,11 +166,23 @@ export function BandMembers() {
         trackRef.current.style.transform = `translateX(-${translateX}px)`;
     }, []);
 
+    // Scroll listener that schedules update on next animation frame
+    const onScroll = useCallback(() => {
+        if (!tickingRef.current) {
+            window.requestAnimationFrame(() => {
+                updateScroll();
+                tickingRef.current = false;
+            });
+            tickingRef.current = true;
+        }
+    }, [updateScroll]);
+
     useEffect(() => {
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll();
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [handleScroll]);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        // Initial measurement
+        updateScroll();
+        return () => window.removeEventListener('scroll', onScroll);
+    }, [onScroll, updateScroll]);
 
     return (
         <section ref={sectionRef} className={styles.section}>

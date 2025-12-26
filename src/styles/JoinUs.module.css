@@ -953,6 +953,52 @@
     margin: 0 auto;
 }
 
+/* Family Message - For Existing Members */
+.familyMessage {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.familyIcon {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    background: rgba(255, 0, 0, 0.15);
+    border: 2px solid rgba(255, 0, 0, 0.3);
+    margin: 0 auto 2rem;
+    border-radius: 50%;
+}
+
+.familyText {
+    font-size: 1.1rem;
+    font-family: var(--font-body);
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto 2rem;
+}
+
+.familyButton {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: var(--red);
+    color: var(--white);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    transition: all 0.3s ease;
+}
+
+.familyButton:hover {
+    background: var(--white);
+    color: var(--red);
+}
+
 /* Textarea */
 .textarea {
     width: 100%;
@@ -973,6 +1019,113 @@
 
 .textarea::placeholder {
     color: rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================= */
+/* APPLICATION LOOKUP                            */
+/* ============================================= */
+
+.lookupToggle {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+    padding: 0.75rem 0;
+    margin-bottom: 1.5rem;
+    transition: color 0.3s ease;
+    text-align: left;
+}
+
+.lookupToggle:hover {
+    color: var(--red);
+}
+
+.lookupSection {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.lookupText {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 1rem 0;
+}
+
+.lookupInputGroup {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.lookupInput {
+    flex: 1;
+    padding: 0.875rem 1rem;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: var(--white);
+    font-size: 1rem;
+    font-family: var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.lookupInput:focus {
+    outline: none;
+    border-color: var(--red);
+}
+
+.lookupInput::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.lookupButton {
+    padding: 0.875rem 1.5rem;
+    background: var(--red);
+    border: 2px solid var(--red);
+    color: var(--white);
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.lookupButton:hover:not(:disabled) {
+    background: var(--white);
+    color: var(--red);
+}
+
+.lookupButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.lookupError {
+    color: var(--red);
+    font-size: 0.85rem;
+    margin: 0 0 1rem 0;
+}
+
+.lookupCancel {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.3s ease;
+}
+
+.lookupCancel:hover {
+    color: var(--white);
 }
 
 /* Responsive adjustments for new elements */

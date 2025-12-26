@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { doc, onSnapshot, collection, query, where, getDocs, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, getDocs, setDoc, serverTimestamp, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import type { Application } from '../types/Application';
@@ -74,6 +74,12 @@ export function JoinUs() {
     // Application state
     const [existingApplication, setExistingApplication] = useState<Application | null>(null);
     const [isLoadingApplication, setIsLoadingApplication] = useState(true);
+
+    // Lookup mode state
+    const [showLookup, setShowLookup] = useState(false);
+    const [lookupRollNo, setLookupRollNo] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+    const [lookupError, setLookupError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<FormData>({
         name: '',
@@ -262,6 +268,55 @@ export function JoinUs() {
         }
     };
 
+    // Handle roll number lookup
+    const handleLookup = async () => {
+        if (!lookupRollNo.trim() || isSearching) return;
+
+        setIsSearching(true);
+        setLookupError(null);
+
+        try {
+            // Normalize roll number to uppercase (common format)
+            const normalizedRollNo = lookupRollNo.trim().toUpperCase();
+
+            // Try exact match first (document ID is rollNo)
+            const docRef = doc(db, 'applications', normalizedRollNo);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const appData = { id: docSnap.id, ...docSnap.data() } as Application;
+                setExistingApplication(appData);
+                setShowLookup(false);
+
+                // Link user to this application
+                if (user && !appData.linkedUserId) {
+                    await updateDoc(docRef, { linkedUserId: user.uid });
+                }
+            } else {
+                // Try lowercase version
+                const lowerDocRef = doc(db, 'applications', lookupRollNo.trim().toLowerCase());
+                const lowerDocSnap = await getDoc(lowerDocRef);
+
+                if (lowerDocSnap.exists()) {
+                    const appData = { id: lowerDocSnap.id, ...lowerDocSnap.data() } as Application;
+                    setExistingApplication(appData);
+                    setShowLookup(false);
+
+                    if (user && !appData.linkedUserId) {
+                        await updateDoc(lowerDocRef, { linkedUserId: user.uid });
+                    }
+                } else {
+                    setLookupError('No application found with this roll number. Please fill out the form below.');
+                }
+            }
+        } catch (error) {
+            console.error('Lookup error:', error);
+            setLookupError('Error searching. Please try again or fill out the form.');
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
     const isLoading = isLoadingConfig || (user && isLoadingApplication);
 
     return (
@@ -299,6 +354,20 @@ export function JoinUs() {
                         /* Loading State */
                         <div className={styles.loadingContainer}>
                             <div className={styles.loadingPulse} />
+                        </div>
+                    ) : userProfile && (userProfile.verificationStatus === 'member' || userProfile.isAdmin) ? (
+                        /* Band Member or Admin - Already Part of the Family */
+                        <div className={styles.familyMessage}>
+                            <div className={styles.familyIcon}>❤️</div>
+                            <h1 className={styles.title}>
+                                <span className={styles.titleText}>YOU'RE ALREADY<br />PART OF THE FAMILY</span>
+                            </h1>
+                            <p className={styles.familyText}>
+                                Welcome back, {userProfile.name || 'fellow musician'}! You're already a verified member of HeartBeats.
+                            </p>
+                            <Link to="/band-area" className={styles.familyButton}>
+                                GO TO BAND AREA →
+                            </Link>
                         </div>
                     ) : existingApplication ? (
                         /* Existing Application - Show Status */
@@ -397,6 +466,55 @@ export function JoinUs() {
                             <h1 className={styles.title}>
                                 <span className={styles.titleText}>JOIN HEARTBEATS</span>
                             </h1>
+
+                            {/* Lookup Section */}
+                            {!showLookup ? (
+                                <button
+                                    type="button"
+                                    className={styles.lookupToggle}
+                                    onClick={() => setShowLookup(true)}
+                                >
+                                    Applied earlier and can't find details? →
+                                </button>
+                            ) : (
+                                <div className={styles.lookupSection}>
+                                    <p className={styles.lookupText}>
+                                        Enter your roll number to find your application:
+                                    </p>
+                                    <div className={styles.lookupInputGroup}>
+                                        <input
+                                            type="text"
+                                            className={styles.lookupInput}
+                                            placeholder="Enter Roll Number"
+                                            value={lookupRollNo}
+                                            onChange={(e) => setLookupRollNo(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
+                                        />
+                                        <button
+                                            type="button"
+                                            className={styles.lookupButton}
+                                            onClick={handleLookup}
+                                            disabled={isSearching || !lookupRollNo.trim()}
+                                        >
+                                            {isSearching ? 'SEARCHING...' : 'FIND'}
+                                        </button>
+                                    </div>
+                                    {lookupError && (
+                                        <p className={styles.lookupError}>{lookupError}</p>
+                                    )}
+                                    <button
+                                        type="button"
+                                        className={styles.lookupCancel}
+                                        onClick={() => {
+                                            setShowLookup(false);
+                                            setLookupError(null);
+                                            setLookupRollNo('');
+                                        }}
+                                    >
+                                        ← Fill out form instead
+                                    </button>
+                                </div>
+                            )}
 
                             <form onSubmit={handleSubmit} className={styles.form}>
                                 {/* Section: Personal Info */}

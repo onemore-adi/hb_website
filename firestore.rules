@@ -51,6 +51,12 @@ service cloud.firestore {
                   && exists(/databases/$(database)/documents/users/$(request.auth.uid))
                   && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
       
+      // Verified members can read other verified members
+      allow read: if request.auth != null 
+                  && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+                  && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.verificationStatus == 'member'
+                  && resource.data.verificationStatus == 'member';
+      
       // Admins can update any user's verificationStatus (approve, decline, revoke)
       // Valid status transitions by admin:
       // - 'pending' -> 'member' (approve)
@@ -77,6 +83,10 @@ service cloud.firestore {
         resource.data.linkedUserId == request.auth.uid ||
         resource.data.email == request.auth.token.email
       );
+      
+      // Logged-in users can read any application by document ID (for roll number lookup)
+      // This allows users to find their application if they used a different email
+      allow read: if request.auth != null;
       
       // Users can create their own application when logged in
       allow create: if request.auth != null

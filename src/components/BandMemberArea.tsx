@@ -87,6 +87,16 @@ export function BandMemberArea() {
                         <div className={styles.cardAction}>OPEN CHAT →</div>
                     </Link>
 
+                    {/* Members Card - VIEW BAND MEMBERS */}
+                    <Link to="/members" className={`${styles.card} ${styles.cardLink}`}>
+                        <div className={styles.cardIcon}>👥</div>
+                        <h2 className={styles.cardTitle}>MEMBERS</h2>
+                        <p className={styles.cardText}>
+                            View all band members and their details.
+                        </p>
+                        <div className={styles.cardAction}>VIEW MEMBERS →</div>
+                    </Link>
+
                     {/* Announcements Card */}
                     <div className={styles.card}>
                         <div className={styles.cardIcon}>📢</div>

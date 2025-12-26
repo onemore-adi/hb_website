@@ -6,13 +6,51 @@ import { Leva } from "leva";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { SlidingSection } from "./components/SlidingSection";
 import { Navbar } from "./components/Navbar";
+import { MobileHero } from "./components/MobileHero";
 
 // Lazy load below-fold components - only load when user scrolls to them
 const BandMembers = lazy(() => import("./components/BandMembers").then(m => ({ default: m.BandMembers })));
 const JoinUsBanner = lazy(() => import("./components/JoinUsBanner").then(m => ({ default: m.JoinUsBanner })));
 const ContactFooter = lazy(() => import("./components/ContactFooter").then(m => ({ default: m.ContactFooter })));
 
+// Breakpoint for iPad and larger (768px is standard iPad width)
+const TABLET_BREAKPOINT = 768;
+
+// Hook to detect if device is mobile (below iPad width)
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => {
+    // SSR-safe initial value
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < TABLET_BREAKPOINT;
+  });
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < TABLET_BREAKPOINT);
+    };
+
+    // Check on mount
+    checkMobile();
+
+    // Listen for resize (with debounce)
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(checkMobile, 150);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  return isMobile;
+}
+
 export function App() {
+  const isMobile = useIsMobile();
   const heroRef = useRef<HTMLDivElement>(null);
 
   // Scroll Logic State
@@ -32,8 +70,52 @@ export function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Animation Loop
+  // Mobile: Simpler scroll handler without heavy lerping
   useEffect(() => {
+    if (!isMobile) return;
+
+    const handleMobileScroll = () => {
+      const scrollY = window.scrollY;
+      const vh = window.innerHeight;
+
+      // Same timeline as desktop but without lerping
+      const GALLERY_START = 0.7 * vh;
+      const GALLERY_END = 2.0 * vh;
+      const EXPANSION_START = 2.0 * vh;
+      const EXPANSION_END = 2.5 * vh;
+      const VIDEO_HOLD_END = 5.0 * vh;
+
+      // Gallery scroll progress
+      let currentGalleryScroll = 0;
+      if (scrollY > GALLERY_START) {
+        currentGalleryScroll = Math.min((scrollY - GALLERY_START) / (GALLERY_END - GALLERY_START), 1);
+      }
+
+      // Expansion progress
+      let currentExpansion = 0;
+      if (scrollY > EXPANSION_START) {
+        currentExpansion = Math.min((scrollY - EXPANSION_START) / (EXPANSION_END - EXPANSION_START), 1);
+      }
+
+      // Video hold complete
+      const isVideoHoldComplete = scrollY > VIDEO_HOLD_END;
+
+      setGalleryScroll(currentGalleryScroll);
+      setExpansionProgress(currentExpansion);
+      setVideoHoldComplete(isVideoHoldComplete);
+    };
+
+    window.addEventListener('scroll', handleMobileScroll, { passive: true });
+    handleMobileScroll(); // Initial call
+
+    return () => window.removeEventListener('scroll', handleMobileScroll);
+  }, [isMobile]);
+
+  // Desktop: Animation Loop with lerping for smooth feel
+  useEffect(() => {
+    // Skip heavy animation loop on mobile
+    if (isMobile) return;
+
     let animationFrameId: number;
 
     const animate = () => {
@@ -95,7 +177,7 @@ export function App() {
 
     animate();
     return () => cancelAnimationFrame(animationFrameId);
-  }, []);
+  }, [isMobile]);
 
   return (
     <div style={{ backgroundColor: 'black', minHeight: '550vh' }}>
@@ -103,31 +185,37 @@ export function App() {
       {/* NAVIGATION BAR - Smart header with scroll behavior */}
       <Navbar />
 
-      {/* 1. HERO SECTION (Sticky 0-100vh) */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          zIndex: 10,
-          willChange: 'transform, opacity'
-        }}
-        ref={heroRef}
-      >
-        <Leva hidden />
-        <Canvas
-          shadows
-          camera={{
-            position: [0, 1.3, 10],
-            fov: 15,
+      {/* 1. HERO SECTION - Conditional rendering based on device */}
+      {isMobile ? (
+        // Mobile: Lightweight parallax hero (no WebGL)
+        <MobileHero />
+      ) : (
+        // Desktop/Tablet: Full Three.js experience
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 10,
+            willChange: 'transform, opacity'
           }}
-          style={{ background: '#090909ff' }}
+          ref={heroRef}
         >
-          <Scene />
-        </Canvas>
-      </div>
+          <Leva hidden />
+          <Canvas
+            shadows
+            camera={{
+              position: [0, 1.3, 10],
+              fov: 15,
+            }}
+            style={{ background: '#090909ff' }}
+          >
+            <Scene />
+          </Canvas>
+        </div>
+      )}
 
       {/* 2. SLIDING GALLERY (Sticky during its phase) */}
       {/* Fades out after video hold completes to reveal Band Members section */}
