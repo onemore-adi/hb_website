@@ -199,6 +199,7 @@ export function ApplicationDetail() {
         switch (status) {
             case 'accepted': return <span className={`${styles.badge} ${styles.badgeAccepted}`}>✓ ACCEPTED</span>;
             case 'declined': return <span className={`${styles.badge} ${styles.badgeDeclined}`}>✗ DECLINED</span>;
+            case 'round2_selected': return <span className={`${styles.badge}`} style={{ background: 'rgba(64, 123, 255, 0.15)', color: '#407bff', border: '1px solid rgba(64, 123, 255, 0.3)' }}>ROUND 2</span>;
             default: return <span className={`${styles.badge} ${styles.badgePending}`}>⏳ PENDING</span>;
         }
     };
@@ -337,6 +338,21 @@ export function ApplicationDetail() {
                         </div>
                     )}
                 </div>
+
+                {/* Round 2 Task - Visible to Members & Admins */}
+                {application.status === 'round2_selected' && application.round2Task && (
+                    <div className={styles.taskSection}>
+                        <div className={styles.taskHeader}>
+                            <h2 className={styles.taskTitle}>ROUND 2 TASK: {application.round2Task.title}</h2>
+                            <span className={styles.taskMeta}>
+                                Assigned: {application.round2Task.assignedAt ? new Date((application.round2Task.assignedAt as any).seconds * 1000).toLocaleDateString() : 'Recently'}
+                            </span>
+                        </div>
+                        <p className={styles.taskDesc} dangerouslySetInnerHTML={{
+                            __html: application.round2Task.description.replace(/\n/g, '<br/>')
+                        }} />
+                    </div>
+                )}
 
                 {/* Remarks Section - at the end */}
                 <div className={styles.remarksSection}>

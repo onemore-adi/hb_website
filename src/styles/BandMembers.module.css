@@ -4,7 +4,7 @@
 /* ============================================= */
 
 .section {
-    --accent-color: #00ffff;
+    --accent-color: #dc2626;
     --bg-dark: #000000;
     --text-light: #ffffff;
     --text-muted: rgba(255, 255, 255, 0.5);
@@ -14,30 +14,17 @@
     --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
     position: relative;
-    height: 300vh;
-    /* 3x viewport for scroll space */
+    min-height: 100vh;
     background: var(--bg-dark);
     margin: 0;
-    padding: 0;
-}
-
-/* ============================================= */
-/* STICKY CONTAINER                              */
-/* ============================================= */
-
-.stickyContainer {
-    position: sticky;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
+    padding: 4rem 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
-    background: var(--bg-dark);
 }
+
+
 
 /* ============================================= */
 /* HEADER                                        */
@@ -90,14 +77,39 @@
 
 .galleryWrapper {
     width: 100%;
-    overflow: visible;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 2rem;
+
+    /* Custom scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(220, 38, 38, 0.5) rgba(255, 255, 255, 0.05);
+}
+
+/* Webkit scrollbar styling */
+.galleryWrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.galleryWrapper::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.galleryWrapper::-webkit-scrollbar-thumb {
+    background: rgba(220, 38, 38, 0.5);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.galleryWrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(220, 38, 38, 0.7);
 }
 
 .galleryTrack {
-    display: flex;
+    display: inline-flex;
     gap: 1.5rem;
-    padding: 2rem 8vw;
-    will-change: transform;
+    padding: 2rem 0;
 }
 
 /* ============================================= */
@@ -136,7 +148,7 @@
 
 .portraitCard:hover {
     transform: translateY(-12px);
-    box-shadow: 0 20px 40px rgba(0, 255, 255, 0.15);
+    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.15);
 }
 
 /* Staggered heights for visual interest */
@@ -153,12 +165,12 @@
 /* ============================================= */
 
 .ebMember {
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.1);
 }
 
 .ebMember:hover {
-    box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
+    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.2);
 }
 
 .ebBadge {
@@ -175,8 +187,8 @@
 .ebLabel {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: linear-gradient(135deg, #ffd700 0%, #f4a300 100%);
-    color: #000;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: #ffffff;
     font-size: 0.6rem;
     font-weight: 800;
     letter-spacing: 0.1em;
@@ -190,7 +202,7 @@
     padding: 0.2rem 0.4rem;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(8px);
-    color: #ffd700;
+    color: #dc2626;
     font-size: 0.55rem;
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -305,28 +317,7 @@
     transform: translateY(0);
 }
 
-/* ============================================= */
-/* PROGRESS BAR                                  */
-/* ============================================= */
 
-.progressBar {
-    position: absolute;
-    bottom: 2.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 180px;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 1px;
-    overflow: hidden;
-}
-
-.progressFill {
-    width: 100%;
-    height: 100%;
-    background: var(--accent-color);
-    transform-origin: left center;
-}
 
 /* ============================================= */
 /* RESPONSIVE                                    */

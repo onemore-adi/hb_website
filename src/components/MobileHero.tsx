@@ -94,30 +94,10 @@ export function MobileHero({ onScrollProgress }: MobileHeroProps) {
 
             {/* Content overlay */}
             <div className={styles.content}>
-                <h1 className={styles.title}>
-                    <span className={styles.titleLine}>HEART</span>
-                    <span className={styles.titleLine}>BEATS</span>
-                </h1>
+                <h1 className={styles.title}>HEARTBEATS</h1>
                 <p className={styles.subtitle}>
                     The Official Music Fusion Band of NIT Rourkela
                 </p>
-
-                {/* Scroll indicator */}
-                <div className={styles.scrollIndicator}>
-                    <div className={styles.scrollLine} />
-                    <span className={styles.scrollText}>SCROLL</span>
-                </div>
-            </div>
-
-            {/* Animated accent lines */}
-            <div className={styles.accentLines}>
-                {[...Array(3)].map((_, i) => (
-                    <div
-                        key={i}
-                        className={styles.accentLine}
-                        style={{ animationDelay: `${i * 0.2}s` }}
-                    />
-                ))}
             </div>
         </div>
     );

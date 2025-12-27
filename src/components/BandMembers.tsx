@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
 import styles from '../styles/BandMembers.module.css';
 
 interface BandMember {
@@ -125,94 +124,24 @@ function PortraitCard({ member, index }: { member: BandMember; index: number }) 
 }
 
 export function BandMembers() {
-    const sectionRef = useRef<HTMLDivElement>(null);
-    const trackRef = useRef<HTMLDivElement>(null);
-    const [scrollProgress, setScrollProgress] = useState(0);
-    const tickingRef = useRef(false);
-
-    // Core update logic - Separated for rAF throttling
-    const updateScroll = useCallback(() => {
-        if (!sectionRef.current || !trackRef.current) return;
-
-        const section = sectionRef.current;
-        const rect = section.getBoundingClientRect();
-        const sectionHeight = section.offsetHeight;
-        const windowHeight = window.innerHeight;
-
-        // Section is "active" when its top is at or above viewport top
-        // and its bottom is below viewport top
-        if (rect.top > 0 || rect.bottom < windowHeight) {
-            // Not in active scroll zone yet
-            if (rect.top > 0) {
-                setScrollProgress(0);
-                trackRef.current.style.transform = `translateX(0px)`;
-            }
-            return;
-        }
-
-        // Calculate scroll progress through the section
-        const scrollableDistance = sectionHeight - windowHeight;
-        const scrolled = Math.abs(rect.top);
-        const progress = Math.min(1, Math.max(0, scrolled / scrollableDistance));
-
-        setScrollProgress(progress);
-
-        // Apply horizontal translation
-        const trackWidth = trackRef.current.scrollWidth;
-        const viewportWidth = window.innerWidth;
-        const maxTranslate = Math.max(0, trackWidth - viewportWidth + 100);
-        const translateX = progress * maxTranslate;
-
-        trackRef.current.style.transform = `translateX(-${translateX}px)`;
-    }, []);
-
-    // Scroll listener that schedules update on next animation frame
-    const onScroll = useCallback(() => {
-        if (!tickingRef.current) {
-            window.requestAnimationFrame(() => {
-                updateScroll();
-                tickingRef.current = false;
-            });
-            tickingRef.current = true;
-        }
-    }, [updateScroll]);
-
-    useEffect(() => {
-        window.addEventListener('scroll', onScroll, { passive: true });
-        // Initial measurement
-        updateScroll();
-        return () => window.removeEventListener('scroll', onScroll);
-    }, [onScroll, updateScroll]);
-
     return (
-        <section ref={sectionRef} className={styles.section}>
-            {/* Sticky Container */}
-            <div className={styles.stickyContainer}>
-                {/* Header */}
-                <header className={styles.header}>
-                    <span className={styles.tagline}>THE ARTISTS</span>
-                    <h2 className={styles.title}>Meet the Band</h2>
-                </header>
+        <section className={styles.section}>
+            {/* Header */}
+            <header className={styles.header}>
+                <span className={styles.tagline}>THE ARTISTS</span>
+                <h2 className={styles.title}>Meet the Band</h2>
+            </header>
 
-                {/* Horizontal Gallery */}
-                <div className={styles.galleryWrapper}>
-                    <div ref={trackRef} className={styles.galleryTrack}>
-                        {bandMembers.map((member, index) => (
-                            <PortraitCard
-                                key={index}
-                                member={member}
-                                index={index}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                {/* Progress Indicator */}
-                <div className={styles.progressBar}>
-                    <div
-                        className={styles.progressFill}
-                        style={{ transform: `scaleX(${scrollProgress})` }}
-                    ></div>
+            {/* Horizontal Gallery */}
+            <div className={styles.galleryWrapper}>
+                <div className={styles.galleryTrack}>
+                    {bandMembers.map((member, index) => (
+                        <PortraitCard
+                            key={index}
+                            member={member}
+                            index={index}
+                        />
+                    ))}
                 </div>
             </div>
         </section>

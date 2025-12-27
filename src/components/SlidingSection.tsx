@@ -1,104 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, useMotionValue, useVelocity, useSpring, useTransform } from 'framer-motion';
 import styles from '../styles/SlidingSection.module.css';
-
-// Hook to detect mobile device (shared matching App.tsx logic)
-function useIsMobile() {
-    const [isMobile, setIsMobile] = useState(false);
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-    return isMobile;
-}
-
-// Inertia Text Component - Hybrid Approach
-// Desktop: Framer Motion (Spring Physics)
-// Mobile: CSS Transition (Lightweight)
-function InertiaText({ scrollProgress }: { scrollProgress: number }) {
-    const isMobile = useIsMobile();
-
-    // --- DESKTOP LOGIC (Framer Motion) ---
-    const progress = useMotionValue(scrollProgress);
-
-    useEffect(() => {
-        if (!isMobile) {
-            progress.set(scrollProgress);
-        }
-    }, [scrollProgress, progress, isMobile]);
-
-    const velocity = useVelocity(progress);
-    const smoothVelocity = useSpring(velocity, {
-        damping: 25,
-        stiffness: 120,
-        mass: 0.5
-    });
-
-    const skewX = useTransform(smoothVelocity, [-0.5, 0.5], [12, -12]);
-    const translateXMotion = useTransform(progress, p => `calc(${50 - p * 120}vw)`);
-
-    // --- MOBILE LOGIC (CSS) ---
-    const prevProgressRef = useRef(scrollProgress);
-    const [mobileSkewAngle, setMobileSkewAngle] = useState(0);
-
-    useEffect(() => {
-        if (!isMobile) return;
-
-        const delta = scrollProgress - prevProgressRef.current;
-        prevProgressRef.current = scrollProgress;
-
-        const targetSkew = Math.max(-12, Math.min(12, delta * 150));
-        setMobileSkewAngle(targetSkew);
-
-        const timeout = setTimeout(() => {
-            setMobileSkewAngle(0);
-        }, 150);
-
-        return () => clearTimeout(timeout);
-    }, [scrollProgress, isMobile]);
-
-    const mobileTranslateX = 50 - scrollProgress * 120;
-
-    if (isMobile) {
-        return (
-            <div className={styles.inertiaTextContainer}>
-                <h2
-                    className={styles.inertiaText}
-                    style={{
-                        transform: `translateX(${mobileTranslateX}vw) skewX(${mobileSkewAngle}deg)`,
-                        transition: 'transform 0.15s ease-out'
-                    }}
-                >
-                    To the memories made over time
-                </h2>
-            </div>
-        );
-    }
-
-    return (
-        <div className={styles.inertiaTextContainer}>
-            <motion.h2
-                className={styles.inertiaText}
-                style={{
-                    skewX,
-                    x: translateXMotion
-                }}
-            >
-                To the memories made over time
-            </motion.h2>
-        </div>
-    );
-}
 
 type MediaItem = {
     type: 'image' | 'video' | 'youtube';
     src: string;
 };
 
-// YouTube video ID for the last item
-const YOUTUBE_VIDEO_ID = 'UlrCaozEmAE';
+// YouTube video IDs
+const DESKTOP_YOUTUBE_VIDEO_ID = 'UlrCaozEmAE'; // Desktop video
+const MOBILE_YOUTUBE_VIDEO_ID = 'xL_fPN8I1d8';  // Mobile Shorts video
 
 // Lazy YouTube Component - Shows thumbnail first, loads iframe only when needed
 interface LazyYouTubeProps {
@@ -195,6 +105,34 @@ function LazyYouTube({ videoId, shouldLoad, style, className }: LazyYouTubeProps
     );
 }
 
+// Hook to detect mobile device
+function useIsMobile() {
+    const [isMobile, setIsMobile] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return window.innerWidth < 768;
+    });
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        let timeoutId: ReturnType<typeof setTimeout>;
+        const handleResize = () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(checkMobile, 150);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            clearTimeout(timeoutId);
+        };
+    }, []);
+
+    return isMobile;
+}
+
 const items: MediaItem[] = [
     { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637618/DSC04664_tixqnw.jpg" },
     { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637617/DSC_1292_gmhvgy.jpg" },
@@ -205,7 +143,7 @@ const items: MediaItem[] = [
     { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637618/RSV-0497_e1njlo.jpg" },
     { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637618/RSV-0636_vpn5ko.jpg" },
     { type: 'image', src: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637617/IMG_1768_2_yd4uxj.jpg" },
-    { type: 'youtube', src: YOUTUBE_VIDEO_ID }
+    // Last item will be dynamically set to mobile or desktop video
 ];
 
 interface SlidingSectionProps {
@@ -216,6 +154,13 @@ interface SlidingSectionProps {
 export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSectionProps) {
     const trackRef = useRef<HTMLDivElement>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
+    const isMobile = useIsMobile();
+
+    // Choose video based on device
+    const currentVideoId = isMobile ? MOBILE_YOUTUBE_VIDEO_ID : DESKTOP_YOUTUBE_VIDEO_ID;
+
+    // Build items array with appropriate video
+    const mediaItems = [...items, { type: 'youtube' as const, src: currentVideoId }];
 
     useEffect(() => {
         const track = trackRef.current;
@@ -223,23 +168,31 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
 
         // Horizontal Scroll Logic
         // We want to scroll such that at scrollProgress = 1, the LAST image is centered.
-        // Last Image is the Nth image.
-        // Image Width = 40vmin. Gap = 4vmin.
-        // Track logic: standard flex row.
+        // We need to match the CSS dimensions:
+
+        let itemWidthVmin = 40;
+        let gapVmin = 4;
+
+        // Check CSS breakpoints
+        const vw = window.innerWidth;
+        if (vw <= 480) {
+            itemWidthVmin = 70;
+            gapVmin = 2.5;
+        } else if (vw <= 768) {
+            itemWidthVmin = 60;
+            gapVmin = 3;
+        }
+
+        const strideVmin = itemWidthVmin + gapVmin;
+        const initialCenterOffsetVmin = itemWidthVmin / 2;
 
         // Position of Center of Last Image from start of track:
-        // (N-1) * (Width + Gap) + (Width / 2)
-        // N = 8.
-        // Dist = 7 * (44vmin) + 20vmin = 308vmin + 20vmin = 328vmin.
+        // (N-1) * (Stride) + (InitialOffset)
+        const travelDistanceVmin = (mediaItems.length - 1) * strideVmin;
 
-        // We want this point to be at 50vw.
-        // Transform X = 50vw - 328vmin.
-
-        // Let's use CSS calc for precision.
-        // N=8.
-
-        const travelDistanceVmin = (items.length - 1) * 44;
-        const currentVminOffset = 20 + travelDistanceVmin * scrollProgress;
+        // Current position to center at 50vw:
+        // We need to shift the track LEFT by [CurrentCenterPos].
+        const currentVminOffset = initialCenterOffsetVmin + travelDistanceVmin * scrollProgress;
 
         // CSS module has `left: 50%`.
         // So 0px translation means the *start* of the track is at 50vw.
@@ -347,15 +300,13 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
 
     return (
         <div className={styles.container}>
-            {/* Inertia Text Header */}
-            <InertiaText scrollProgress={scrollProgress} />
             <div
                 ref={trackRef}
                 id="image-track"
                 className={styles.imageTrack}
             >
-                {items.map((item, index) => {
-                    const isLast = index === items.length - 1;
+                {mediaItems.map((item, index) => {
+                    const isLast = index === mediaItems.length - 1;
                     if (isLast) {
                         // For the last image/video, we want to simulate the Overlay crop.
                         // The Overlay is 100vw x 100vh Fixed centered.
@@ -455,9 +406,10 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                 {/* 
                     Render the last item content again for the full screen overlay 
                 */}
-                {items[items.length - 1].type === 'youtube' ? (
+                {mediaItems[mediaItems.length - 1].type === 'youtube' ? (
                     <LazyYouTube
-                        videoId={items[items.length - 1].src}
+                        videoId={mediaItems[mediaItems.length - 1].src}
+                        // Only load when expansion has started to show thumbnail first
                         shouldLoad={expansionProgress > 0.1}
                         style={{
                             width: '100%',
@@ -466,9 +418,9 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                             pointerEvents: 'none'
                         }}
                     />
-                ) : items[items.length - 1].type === 'video' ? (
+                ) : mediaItems[mediaItems.length - 1].type === 'video' ? (
                     <video
-                        src={items[items.length - 1].src}
+                        src={mediaItems[mediaItems.length - 1].src}
                         autoPlay
                         muted
                         loop
@@ -481,7 +433,7 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                     />
                 ) : (
                     <img
-                        src={items[items.length - 1].src}
+                        src={mediaItems[mediaItems.length - 1].src}
                         loading="lazy"
                         decoding="async"
                         style={{
@@ -491,14 +443,57 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                         }}
                     />
                 )}
-                {/* Dark overlay for expansion as well */}
+                {/* Dark overlay for expansion - increased for text visibility */}
                 <div style={{
                     position: 'absolute',
                     inset: 0,
-                    backgroundColor: 'rgba(0,0,0,0.3)',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
                     zIndex: 1,
                     pointerEvents: 'none'
                 }} />
+
+                {/* "Who Are We" Text Overlay - Fades in at 60% expansion */}
+                <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    paddingTop: '15vh',
+                    paddingLeft: '10vw',
+                    paddingRight: '10vw',
+                    opacity: expansionProgress >= 0.6 ? 1 : 0,
+                    transition: 'opacity 0.8s ease-in',
+                    pointerEvents: 'none'
+                }}>
+                    <h2 style={{
+                        fontFamily: '"Helvetica Neue", "Helvetica", Arial, sans-serif',
+                        fontWeight: 800,
+                        fontSize: 'clamp(3rem, 7vw, 6rem)',
+                        color: '#ffffff',
+                        margin: '0 0 1.5rem 0',
+                        textAlign: 'left',
+                        letterSpacing: '0.02em',
+                        textTransform: 'uppercase'
+                    }}>
+                        Who Are We
+                    </h2>
+                    <p style={{
+                        fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+                        fontWeight: 400,
+                        fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)',
+                        color: 'rgba(255, 255, 255, 0.9)',
+                        maxWidth: '700px',
+                        textAlign: 'left',
+                        lineHeight: 1.6,
+                        margin: 0,
+                        letterSpacing: 'normal'
+                    }}>
+                        The official Music Fusion Band of NIT Rourkela, blending diverse rhythms and melodies to create unforgettable performances that resonate with every soul.
+                    </p>
+                </div>
             </div>
         </div>
     );
