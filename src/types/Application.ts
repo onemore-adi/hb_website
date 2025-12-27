@@ -19,7 +19,13 @@ export interface Application {
     videoLink?: string;            // Audition video
     performanceLink?: string;      // Legacy field
     message?: string;              // Legacy field
-    status: 'pending' | 'accepted' | 'declined';
+    status: 'pending' | 'accepted' | 'declined' | 'round2_selected';
+    round2Task?: {
+        title: string;
+        description: string;
+        assignedAt: { seconds: number; nanoseconds: number } | Date;
+        emailSent?: boolean;
+    };
     source: 'google_forms' | 'website';
     linkedUserId?: string;         // Set when user creates account
     submittedAt: { seconds: number; nanoseconds: number } | Date;

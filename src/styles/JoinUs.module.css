@@ -683,6 +683,12 @@
     border: 1px solid rgba(244, 67, 54, 0.3);
 }
 
+.statusRound2 {
+    background: rgba(64, 123, 255, 0.15);
+    color: #407bff;
+    border: 1px solid rgba(64, 123, 255, 0.3);
+}
+
 .statusMessage {
     font-size: 0.9rem;
     font-family: var(--font-body);

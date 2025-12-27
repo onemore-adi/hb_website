@@ -9,7 +9,8 @@ import {
     serverTimestamp,
     where,
     getDoc,
-    setDoc
+    setDoc,
+    writeBatch
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth, type UserProfile } from '../context/AuthContext';
@@ -32,6 +33,15 @@ export function AdminPanel() {
     const [togglingApplications, setTogglingApplications] = useState(false);
     const [isChatEnabled, setIsChatEnabled] = useState(true);
     const [togglingChat, setTogglingChat] = useState(false);
+
+    // Selection & Assignment State
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [taskTitle, setTaskTitle] = useState('');
+    const [taskDesc, setTaskDesc] = useState('');
+    const [sendEmail, setSendEmail] = useState(true);
+    const [isAssigning, setIsAssigning] = useState(false);
 
     // Page load animation
     useEffect(() => {
@@ -305,6 +315,98 @@ export function AdminPanel() {
         }
     };
 
+    // Selection Logic
+    const toggleSelect = (id: string) => {
+        setSelectedIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) {
+                newSet.delete(id);
+            } else {
+                newSet.add(id);
+            }
+            return newSet;
+        });
+    };
+
+    const handleSelectAll = () => {
+        if (selectedIds.size === applications.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(applications.map(app => app.id)));
+        }
+    };
+
+    // Open Modal
+    const openAssignModal = () => {
+        setTaskTitle('Round 2: ');
+        setTaskDesc('');
+        setSendEmail(true);
+        setShowAssignModal(true);
+    };
+
+    // Execute Assignment
+    const handleAssignTask = async () => {
+        if (!userProfile?.isAdmin) return;
+        setIsAssigning(true);
+
+        try {
+            const batch = writeBatch(db);
+            const selectedApps = applications.filter(app => selectedIds.has(app.id));
+            const emailPromises: Promise<any>[] = [];
+
+            // 1. Update Firestore
+            selectedApps.forEach(app => {
+                const docRef = doc(db, 'applications', app.id);
+                batch.update(docRef, {
+                    status: 'round2_selected',
+                    round2Task: {
+                        title: taskTitle,
+                        description: taskDesc,
+                        assignedAt: serverTimestamp(),
+                        emailSent: sendEmail
+                    }
+                });
+
+                // 2. Prepare Emails (using GAS)
+                if (sendEmail) {
+                    const emailPromise = fetch(import.meta.env.VITE_GAS_EMAIL_URL || '', {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            to: app.email,
+                            subject: `HeartBeats - ${taskTitle}`,
+                            htmlBody: `
+                                <h1>Congratulations! You've been selected for Round 2.</h1>
+                                <p>Dear ${app.name},</p>
+                                <p>We are pleased to inform you that you have passed the initial screening.</p>
+                                <h3>Task: ${taskTitle}</h3>
+                                <p>${taskDesc.replace(/\n/g, '<br>')}</p>
+                                <hr>
+                                <p>Please visit your <a href="https://heartbeats-nitr.web.app/join-us">Application Status Page</a> for more details.</p>
+                                <p>Best,<br>HeartBeats Team</p>
+                            `
+                        })
+                    }).catch(e => console.error("Failed to send email to " + app.email, e));
+                    emailPromises.push(emailPromise);
+                }
+            });
+
+            await batch.commit();
+            await Promise.all(emailPromises);
+
+            setShowAssignModal(false);
+            setSelectedIds(new Set());
+            alert(`Successfully assigned task to ${selectedApps.length} applicants.`);
+
+        } catch (error) {
+            console.error("Assignment Error:", error);
+            alert("Failed to assign tasks.");
+        } finally {
+            setIsAssigning(false);
+        }
+    };
+
     // Loading state
     if (loading) {
         return (
@@ -359,6 +461,46 @@ export function AdminPanel() {
 
     return (
         <div className={`${styles.page} ${isLoaded ? styles.loaded : ''}`}>
+            {/* Modal */}
+            {showAssignModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <h2 className={styles.modalTitle}>ASSIGN TASK</h2>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>TASK TITLE</label>
+                            <input
+                                className={styles.input}
+                                value={taskTitle}
+                                onChange={e => setTaskTitle(e.target.value)}
+                                placeholder="e.g. Round 2: Video Submission"
+                            />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>TASK DESCRIPTION</label>
+                            <textarea
+                                className={styles.textarea}
+                                rows={5}
+                                value={taskDesc}
+                                onChange={e => setTaskDesc(e.target.value)}
+                                placeholder="Detailed instructions for the task..."
+                            />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label className={styles.emailOption}>
+                                <input type="checkbox" checked={sendEmail} onChange={e => setSendEmail(e.target.checked)} />
+                                Send Email Notification
+                            </label>
+                        </div>
+                        <div className={styles.modalActions}>
+                            <button onClick={() => setShowAssignModal(false)} className={styles.cancelButton}>CANCEL</button>
+                            <button onClick={handleAssignTask} className={styles.confirmButton} disabled={isAssigning || !taskTitle.trim()}>
+                                {isAssigning ? 'ASSIGNING...' : 'ASSIGN'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Back Link */}
             <Link to="/dashboard" className={styles.backLink}>
                 ← DASHBOARD
@@ -419,8 +561,8 @@ export function AdminPanel() {
                     </button>
                 </div>
 
-                {/* Tabs */}
-                <div className={styles.tabs}>
+                {/* Tags & Selection Controls */}
+                <div className={styles.tabs} style={{ flexWrap: 'wrap', alignItems: 'center' }}>
                     <button
                         className={`${styles.tab} ${activeTab === 'applications' ? styles.active : ''}`}
                         onClick={() => setActiveTab('applications')}
@@ -445,6 +587,23 @@ export function AdminPanel() {
                             <span className={styles.tabBadge}>{pendingUsers.length}</span>
                         )}
                     </button>
+
+                    {/* Selection Controls (Only on Applications tab) */}
+                    {activeTab === 'applications' && (
+                        <div style={{ marginLeft: 'auto', display: 'flex' }}>
+                            <button
+                                className={`${styles.actionButton} ${isSelectionMode ? styles.active : ''}`}
+                                onClick={() => setIsSelectionMode(!isSelectionMode)}
+                            >
+                                {isSelectionMode ? 'CANCEL SELECTION' : 'SELECT MODE'}
+                            </button>
+                            {isSelectionMode && (
+                                <button className={styles.actionButton} onClick={handleSelectAll}>
+                                    {selectedIds.size === applications.length ? 'DESELECT ALL' : 'SELECT ALL'}
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Content based on active tab */}
@@ -458,6 +617,16 @@ export function AdminPanel() {
                         ) : (
                             applications.map(app => (
                                 <div key={app.id} className={styles.userCard}>
+                                    {isSelectionMode && (
+                                        <div className={styles.checkboxContainer}>
+                                            <input
+                                                type="checkbox"
+                                                className={styles.checkbox}
+                                                checked={selectedIds.has(app.id)}
+                                                onChange={() => toggleSelect(app.id)}
+                                            />
+                                        </div>
+                                    )}
                                     <Link to={`/applications/${app.id}`} className={styles.userInfo} style={{ textDecoration: 'none', color: 'inherit' }}>
                                         <div className={styles.userName}>
                                             {app.name}
@@ -493,6 +662,16 @@ export function AdminPanel() {
                                     </div>
                                 </div>
                             ))
+                        )}
+
+                        {/* Floating Selection Bar */}
+                        {isSelectionMode && selectedIds.size > 0 && (
+                            <div className={styles.selectionBar}>
+                                <span className={styles.selectionCount}>{selectedIds.size} SELECTED</span>
+                                <button className={styles.assignButton} onClick={openAssignModal}>
+                                    ASSIGN TASK
+                                </button>
+                            </div>
                         )}
                     </div>
                 ) : (

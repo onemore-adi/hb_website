@@ -509,5 +509,45 @@
     margin: 0;
     font-size: 0.95rem;
     color: rgba(255, 255, 255, 0.8);
-    line-height: 1.5;
+}
+
+/* ============================================= */
+/* ROUND 2 TASK SECTION                          */
+/* ============================================= */
+
+.taskSection {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(64, 123, 255, 0.05);
+    border: 1px solid rgba(64, 123, 255, 0.2);
+    border-left: 4px solid #407bff;
+}
+
+.taskHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.taskTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: #407bff;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+
+.taskMeta {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: var(--font-mono);
+}
+
+.taskDesc {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    margin: 0;
 }

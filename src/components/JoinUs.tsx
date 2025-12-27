@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { doc, onSnapshot, collection, query, where, getDocs, setDoc, serverTimestamp, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, setDoc, serverTimestamp, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import type { Application } from '../types/Application';
@@ -132,35 +132,44 @@ export function JoinUs() {
             return;
         }
 
+        let unsubscribe: () => void;
+
         const checkExistingApplication = async () => {
             try {
                 const applicationsRef = collection(db, 'applications');
                 const emailQuery = query(applicationsRef, where('email', '==', user.email));
-                const emailSnapshot = await getDocs(emailQuery);
 
-                if (!emailSnapshot.empty) {
-                    const appDoc = emailSnapshot.docs[0];
-                    const appData = { id: appDoc.id, ...appDoc.data() } as Application;
-                    setExistingApplication(appData);
+                unsubscribe = onSnapshot(emailQuery, (snapshot) => {
+                    if (!snapshot.empty) {
+                        const appDoc = snapshot.docs[0];
+                        const appData = { id: appDoc.id, ...appDoc.data() } as Application;
+                        setExistingApplication(appData);
 
-                    // Link user if not already linked
-                    if (!appData.linkedUserId && user.uid) {
-                        await updateDoc(doc(db, 'applications', appDoc.id), {
-                            linkedUserId: user.uid
-                        });
+                        // Link user if not already linked (only on first load)
+                        if (!appData.linkedUserId && user.uid) {
+                            updateDoc(doc(db, 'applications', appDoc.id), {
+                                linkedUserId: user.uid
+                            }).catch(console.error);
+                        }
+                    } else {
+                        setExistingApplication(null);
                     }
-                } else {
-                    setExistingApplication(null);
-                }
+                    setIsLoadingApplication(false);
+                }, (error) => {
+                    console.error('Error listening to application:', error);
+                    setIsLoadingApplication(false);
+                });
             } catch (error) {
-                console.error('Error checking application:', error);
-                setExistingApplication(null);
-            } finally {
+                console.error('Error setting up listener:', error);
                 setIsLoadingApplication(false);
             }
         };
 
         checkExistingApplication();
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, [user]);
 
     // Pre-fill name from user profile
@@ -263,6 +272,8 @@ export function JoinUs() {
                 return <span className={`${styles.statusBadge} ${styles.statusAccepted}`}>✓ ACCEPTED</span>;
             case 'declined':
                 return <span className={`${styles.statusBadge} ${styles.statusDeclined}`}>✗ DECLINED</span>;
+            case 'round2_selected':
+                return <span className={`${styles.statusBadge} ${styles.statusRound2}`}>ROUND 2</span>;
             default:
                 return <span className={`${styles.statusBadge} ${styles.statusPending}`}>⏳ PENDING</span>;
         }
@@ -392,6 +403,21 @@ export function JoinUs() {
                                     <p className={styles.statusMessage}>
                                         Unfortunately, your application was not successful this time.
                                     </p>
+                                )}
+                                {existingApplication.status === 'round2_selected' && (
+                                    <div className={styles.round2Container}>
+                                        <p className={styles.statusMessage}>
+                                            Congratulations! You have been selected for Round 2.
+                                        </p>
+                                        {existingApplication.round2Task && (
+                                            <div className={styles.taskCard}>
+                                                <h3 className={styles.taskTitle}>{existingApplication.round2Task.title}</h3>
+                                                <p className={styles.taskDesc} dangerouslySetInnerHTML={{
+                                                    __html: existingApplication.round2Task.description.replace(/\n/g, '<br/>')
+                                                }} />
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
                             </div>
 
