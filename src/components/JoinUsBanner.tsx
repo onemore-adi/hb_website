@@ -19,7 +19,7 @@ const performances = [
 ];
 
 export function JoinUsBanner() {
-    const [showAchievements, setShowAchievements] = useState(false);
+    const [bannerState, setBannerState] = useState(0); // 0, 1, 2
     const [isVisible, setIsVisible] = useState(false);
     const sectionRef = useRef<HTMLElement>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -42,18 +42,19 @@ export function JoinUsBanner() {
         return () => observer.disconnect();
     }, [handleIntersection]);
 
-    // Toggle content every 4 seconds when visible (doubled from 2s)
+    // Cycle content every 3.5 seconds
     useEffect(() => {
         if (isVisible) {
             timerRef.current = setInterval(() => {
-                setShowAchievements(prev => !prev);
-            }, 4000);
+                setBannerState(prev => (prev + 1) % 3);
+            }, 3500);
         } else {
             if (timerRef.current) {
                 clearInterval(timerRef.current);
                 timerRef.current = null;
             }
-            setShowAchievements(false);
+            // Reset to 0 when out of view? Optional.
+            // setBannerState(0); 
         }
 
         return () => {
@@ -63,11 +64,15 @@ export function JoinUsBanner() {
         };
     }, [isVisible]);
 
+    // Desktop: State 0 = Headline, State 1 & 2 = Stats
+    const showStats = bannerState !== 0;
+
     return (
         <section
             ref={sectionRef}
             className={styles.section}
             id="join-us"
+            data-state={bannerState}
         >
             {/* Ambient glow effects */}
             <div className={styles.ambientGlow} />
@@ -77,14 +82,16 @@ export function JoinUsBanner() {
             <div className={styles.contentWrapper}>
                 {/* Left side content */}
                 <div className={styles.sideContent}>
-                    <div className={`${styles.sidePanel} ${!showAchievements ? styles.active : ''}`}>
+                    {/* State 0: Headline */}
+                    <div className={`${styles.sidePanel} ${styles.headlinePanel} ${!showStats ? styles.active : ''}`}>
                         <span className={styles.eyebrow}>NOW RECRUITING</span>
                         <h2 className={styles.headline}>
                             Become Part of<br />
                             <span className={styles.headlineAccent}>Something Epic</span>
                         </h2>
                     </div>
-                    <div className={`${styles.sidePanel} ${styles.statsPanel} ${showAchievements ? styles.active : ''}`}>
+                    {/* State 1 (Mobile Focus): Achievements */}
+                    <div className={`${styles.sidePanel} ${styles.statsPanel} ${styles.achievementsPanel} ${showStats ? styles.active : ''}`}>
                         <span className={styles.panelLabel}>Our Achievements</span>
                         <ul className={styles.statsList}>
                             {achievements.map((item, index) => (
@@ -105,19 +112,23 @@ export function JoinUsBanner() {
                         <span className={styles.ctaArrow}>→</span>
                     </Link>
                     <div className={styles.ctaSubtext}>
-                        {showAchievements ? 'Be part of the legacy' : 'Applications open'}
+                        {bannerState === 0 ? 'Applications open' :
+                            bannerState === 1 ? 'Be part of the legacy' :
+                                'Take the stage'}
                     </div>
                 </div>
 
                 {/* Right side content */}
                 <div className={styles.sideContent}>
-                    <div className={`${styles.sidePanel} ${!showAchievements ? styles.active : ''}`}>
+                    {/* State 0: Tagline */}
+                    <div className={`${styles.sidePanel} ${styles.taglinePanel} ${!showStats ? styles.active : ''}`}>
                         <p className={styles.tagline}>
                             Are you a passionate musician, producer, or creative mind?
                             We're looking for talent to join the HEARTBEATS family.
                         </p>
                     </div>
-                    <div className={`${styles.sidePanel} ${styles.statsPanel} ${showAchievements ? styles.active : ''}`}>
+                    {/* State 2 (Mobile Focus): Performances */}
+                    <div className={`${styles.sidePanel} ${styles.statsPanel} ${styles.performancesPanel} ${showStats ? styles.active : ''}`}>
                         <span className={styles.panelLabel}>Key Performances</span>
                         <ul className={styles.statsList}>
                             {performances.map((item, index) => (
@@ -140,8 +151,9 @@ export function JoinUsBanner() {
 
             {/* View indicator */}
             <div className={styles.viewIndicator}>
-                <span className={`${styles.indicatorDot} ${!showAchievements ? styles.activeDot : ''}`} />
-                <span className={`${styles.indicatorDot} ${showAchievements ? styles.activeDot : ''}`} />
+                <span className={`${styles.indicatorDot} ${bannerState === 0 ? styles.activeDot : ''}`} />
+                <span className={`${styles.indicatorDot} ${bannerState === 1 ? styles.activeDot : ''}`} />
+                <span className={`${styles.indicatorDot} ${bannerState === 2 ? styles.activeDot : ''}`} />
             </div>
         </section>
     );

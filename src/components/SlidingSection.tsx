@@ -35,9 +35,9 @@ function LazyYouTube({ videoId, shouldLoad, style, className }: LazyYouTubeProps
             <div
                 className={className}
                 style={{
-                    ...style,
                     cursor: 'pointer',
-                    position: 'relative'
+                    position: 'relative',
+                    ...style
                 }}
                 onClick={() => setHasInteracted(true)}
             >
@@ -171,15 +171,18 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
         // We need to match the CSS dimensions:
 
         let itemWidthVmin = 40;
+        let itemHeightVmin = 56;
         let gapVmin = 4;
 
         // Check CSS breakpoints
         const vw = window.innerWidth;
         if (vw <= 480) {
             itemWidthVmin = 70;
+            itemHeightVmin = 85;
             gapVmin = 2.5;
         } else if (vw <= 768) {
             itemWidthVmin = 60;
+            itemHeightVmin = 75;
             gapVmin = 3;
         }
 
@@ -237,8 +240,8 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
 
                 // Interpolate Clip Path
                 const p = 1 - expansionProgress;
-                const currentInsetY = `calc((50vh - 28vmin) * ${p})`;
-                const currentInsetX = `calc((50vw - 20vmin) * ${p})`;
+                const currentInsetY = `calc((50vh - ${itemHeightVmin / 2}vmin) * ${p})`;
+                const currentInsetX = `calc((50vw - ${itemWidthVmin / 2}vmin) * ${p})`;
 
                 overlayElement.style.clipPath = `inset(${currentInsetY} ${currentInsetX} ${currentInsetY} ${currentInsetX} round 0px)`;
 
@@ -322,7 +325,7 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                                 {item.type === 'youtube' ? (
                                     <LazyYouTube
                                         videoId={item.src}
-                                        shouldLoad={expansionProgress > 0.1}
+                                        shouldLoad={expansionProgress > 0.8}
                                         style={{
                                             width: '100vw',
                                             height: '100vh',
@@ -410,7 +413,7 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                     <LazyYouTube
                         videoId={mediaItems[mediaItems.length - 1].src}
                         // Only load when expansion has started to show thumbnail first
-                        shouldLoad={expansionProgress > 0.1}
+                        shouldLoad={expansionProgress > 0.8}
                         style={{
                             width: '100%',
                             height: '100%',
@@ -459,11 +462,11 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                     zIndex: 2,
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'flex-start',
-                    justifyContent: 'flex-start',
-                    paddingTop: '15vh',
-                    paddingLeft: '10vw',
-                    paddingRight: '10vw',
+                    alignItems: isMobile ? 'center' : 'flex-start',
+                    justifyContent: isMobile ? 'center' : 'flex-start',
+                    paddingTop: isMobile ? '0' : '15vh',
+                    paddingLeft: isMobile ? '2rem' : '10vw',
+                    paddingRight: isMobile ? '2rem' : '10vw',
                     opacity: expansionProgress >= 0.6 ? 1 : 0,
                     transition: 'opacity 0.8s ease-in',
                     pointerEvents: 'none'
@@ -471,10 +474,10 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                     <h2 style={{
                         fontFamily: '"Helvetica Neue", "Helvetica", Arial, sans-serif',
                         fontWeight: 800,
-                        fontSize: 'clamp(3rem, 7vw, 6rem)',
+                        fontSize: isMobile ? '2.5rem' : 'clamp(3rem, 7vw, 6rem)',
                         color: '#ffffff',
                         margin: '0 0 1.5rem 0',
-                        textAlign: 'left',
+                        textAlign: isMobile ? 'center' : 'left',
                         letterSpacing: '0.02em',
                         textTransform: 'uppercase'
                     }}>
@@ -483,10 +486,10 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                     <p style={{
                         fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
                         fontWeight: 400,
-                        fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)',
+                        fontSize: isMobile ? '1rem' : 'clamp(1.25rem, 2.5vw, 1.5rem)',
                         color: 'rgba(255, 255, 255, 0.9)',
                         maxWidth: '700px',
-                        textAlign: 'left',
+                        textAlign: isMobile ? 'center' : 'left',
                         lineHeight: 1.6,
                         margin: 0,
                         letterSpacing: 'normal'

@@ -339,19 +339,89 @@
 
 @media (max-width: 480px) {
     .footer {
-        padding: 3rem 1rem 2rem;
+        height: 50vh;
+        min-height: auto;
+        padding: 2rem 1rem;
+        justify-content: center;
+    }
+
+    .sectionLabel {
+        display: none;
     }
 
     .title {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
+        display: none;
     }
 
     .emailLink {
-        margin-bottom: 3rem;
+        margin-bottom: 2rem;
+    }
+
+    .emailText {
+        font-size: 1.6rem;
+        text-align: center;
+    }
+
+    .linkGrid {
+        padding-top: 0;
+        border-top: none;
+        gap: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .linkColumn {
+        display: flex;
+        width: 100%;
+        align-items: center;
+    }
+
+    .columnLabel {
+        display: block;
+        margin-bottom: 1rem;
+        font-size: 0.75rem;
+        opacity: 0.7;
+    }
+
+    /* Social Pulse (Column 1) */
+    .linkColumn:nth-child(1) .socialGrid {
+        justify-content: center;
+    }
+
+    /* Navigation (Column 2) */
+    .linkColumn:nth-child(2) {
+        display: flex;
+        text-align: center;
+    }
+
+    .linkList {
+        align-items: center;
+    }
+
+    .linkColumn:nth-child(2) .linkList li {
+        display: block;
+        /* Show all links: Back to Top, Dashboard, Copyright */
+    }
+
+    .socialGrid {
+        gap: 1.5rem;
+    }
+
+    .socialLink {
+        width: 40px;
+        height: 40px;
     }
 
     .exitLogoText {
         font-size: 4rem;
+        transform: translateY(0);
+        opacity: 0.1;
+    }
+
+    .exitLogo {
+        height: 100%;
+        align-items: center;
     }
 }

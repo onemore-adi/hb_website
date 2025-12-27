@@ -325,17 +325,19 @@
 
 @media (max-width: 768px) {
     .section {
-        height: 250vh;
+        height: auto;
+        min-height: 100vh;
+        padding-bottom: 4rem;
     }
 
     .galleryTrack {
-        gap: 1rem;
-        padding: 1.5rem 5vw;
+        gap: 1.5rem;
+        padding: 1rem 2rem;
     }
 
     .portraitCard {
-        width: 170px;
-        height: 320px;
+        width: 45vw;
+        height: 60vh;
     }
 
     .portraitCard:nth-child(even),
@@ -344,25 +346,82 @@
     }
 
     .header {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
     .cardInfo {
-        padding: 1rem;
+        padding: 1.5rem;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    }
+
+    /* Force visibility of text on mobile/tablet */
+    .indexNumber,
+    .role {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+
+    .name {
+        transform: translateY(0) !important;
+        color: var(--text-light);
     }
 }
 
 @media (max-width: 480px) {
     .section {
-        height: 200vh;
+        height: 100vh;
+        min-height: 100vh;
+        padding: 0;
+        /* Shift content up significantly */
+        padding-top: 15vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        /* Ensure it doesn't get cut off on very small screens */
+        overflow: hidden;
     }
 
-    .portraitCard {
-        width: 150px;
-        height: 280px;
+    .header {
+        /* Increased gap between title and pictures */
+        margin-bottom: 6vh;
+        flex-shrink: 0;
+    }
+
+    .tagline {
+        font-size: 0.7rem;
+        margin-bottom: 0.5rem;
     }
 
     .title {
+        font-size: 2.2rem;
+    }
+
+    .galleryTrack {
+        padding: 0 2rem;
+        gap: 1.5rem;
+        /* Center the list items vertically */
+        align-items: center;
+    }
+
+    .portraitCard {
+        /* Reduced size (approx 60% of previous 80vw/60vh) */
+        width: 55vw;
+        height: 50vh;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .name {
+        /* Increased font size */
         font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .role {
+        font-size: 0.8rem;
+    }
+
+    .cardInfo {
+        padding: 1.5rem 1.25rem;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 10%, rgba(0, 0, 0, 0.6) 60%, transparent);
     }
 }

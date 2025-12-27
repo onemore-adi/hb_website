@@ -67,67 +67,33 @@ export function ContactFooter() {
                 <h2 className={styles.title}>START THE FREQUENCY</h2>
 
                 {/* Giant Email Typography */}
+                {/* Giant Email Typography */}
                 <a
-                    href="mailto:heartbeats@nitrourkela.ac.in"
+                    href="mailto:heartbeats.nitrkl@gmail.com"
                     className={styles.emailLink}
                 >
                     <span className={styles.emailText}>
-                        heartbeats@nitrourkela.ac.in
+                        heartbeats.nitrkl@gmail.com
                     </span>
                 </a>
 
                 {/* Quick-Link Grid */}
                 <div className={styles.linkGrid}>
-                    {/* Direct Channels */}
-                    <div className={styles.linkColumn}>
-                        <span className={styles.columnLabel}>Direct Channels</span>
-                        <ul className={styles.linkList}>
-                            <li>
-                                <a href="mailto:bookings@heartbeats.in" className={styles.textLink}>
-                                    Bookings <span className={styles.arrow}>→</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="mailto:press@heartbeats.in" className={styles.textLink}>
-                                    Press <span className={styles.arrow}>→</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="mailto:hello@heartbeats.in" className={styles.textLink}>
-                                    General Inquiries <span className={styles.arrow}>→</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
                     {/* Social Pulse */}
                     <div className={styles.linkColumn}>
                         <span className={styles.columnLabel}>Social Pulse</span>
                         <div className={styles.socialGrid}>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="Instagram">
+                            <a href="https://www.instagram.com/heartbeats.nitr" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="Instagram">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                                     <rect x="2" y="2" width="20" height="20" rx="5" />
                                     <circle cx="12" cy="12" r="4" />
                                     <circle cx="18" cy="6" r="1" fill="currentColor" />
                                 </svg>
                             </a>
-                            <a href="https://spotify.com" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="Spotify">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path d="M8 15c4-1 8 0 8 0" />
-                                    <path d="M7 12c5-1.5 10 0 10 0" />
-                                    <path d="M6 9c6-2 12 0 12 0" />
-                                </svg>
-                            </a>
-                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="YouTube">
+                            <a href="https://www.youtube.com/@HeartBeatsNITR" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="YouTube">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                                     <rect x="2" y="4" width="20" height="16" rx="4" />
                                     <polygon points="10,8 16,12 10,16" fill="currentColor" />
-                                </svg>
-                            </a>
-                            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="TikTok">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
                                 </svg>
                             </a>
                         </div>
@@ -143,8 +109,8 @@ export function ContactFooter() {
                                 </button>
                             </li>
                             <li>
-                                <a href="#privacy" className={styles.textLink}>
-                                    Privacy <span className={styles.arrow}>→</span>
+                                <a href="/dashboard" className={styles.textLink}>
+                                    Dashboard <span className={styles.arrow}>→</span>
                                 </a>
                             </li>
                             <li>
