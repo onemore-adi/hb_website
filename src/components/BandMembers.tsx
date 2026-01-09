@@ -9,6 +9,39 @@ interface BandMember {
 
 // Band member data - Using Cloudinary CDN for bandwidth optimization
 const bandMembers: BandMember[] = [
+    // EB Members
+    {
+        name: "Prajjwal",
+        role: "Tabla",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766848954/Screenshot_2025-12-27_at_20.50.54_t6bqtc.png",
+        ebRole: "President"
+    },
+    {
+        name: "Rishreeta",
+        role: "Vocalist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637065/Rishreeta_vocalist_pffbrk.jpg",
+        ebRole: "Vice President"
+    },
+    {
+        name: "Ajitesh",
+        role: "Keyboardist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637245/Ajitesh_keyboardist-min_xj8mvj.jpg",
+        ebRole: "Secretary"
+    },
+    {
+        name: "Achutha",
+        role: "Flautist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/Achutha_flautist_riw35e.jpg",
+        ebRole: "Treasurer"
+    },
+    {
+        name: "Govind",
+        role: "Drummer",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/Govind_drummer_ygr9nc.jpg",
+        ebRole: "Mentor"
+    },
+
+    // Musicians
     {
         name: "Amrit",
         role: "Vocalist",
@@ -25,21 +58,14 @@ const bandMembers: BandMember[] = [
         image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637069/Paromita_vocalist_oxihdv.jpg"
     },
     {
-        name: "Rishreeta",
-        role: "Vocalist",
-        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637065/Rishreeta_vocalist_pffbrk.jpg",
-        ebRole: "Vice President"
-    },
-    {
         name: "Sumedh",
         role: "Guitarist",
         image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/Sumedh_guitarist_masgx8.jpg"
     },
     {
-        name: "Ajitesh",
-        role: "Keyboardist",
-        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637245/Ajitesh_keyboardist-min_xj8mvj.jpg",
-        ebRole: "Secretary"
+        name: "Soham",
+        role: "Guitarist",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766848920/IMG_2091_ydmr79.jpg"
     },
     {
         name: "Ayush",
@@ -47,21 +73,31 @@ const bandMembers: BandMember[] = [
         image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637246/Ayush_keyboardist-min_ozbcdl.jpg"
     },
     {
-        name: "Govind",
-        role: "Drummer",
-        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/Govind_drummer_ygr9nc.jpg"
-    },
-    {
-        name: "Achutha",
-        role: "Flautist",
-        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/Achutha_flautist_riw35e.jpg",
-        ebRole: "Treasurer"
-    },
-    {
         name: "Anustup",
-        role: "Sarod",
+        role: "Sarodist",
         image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637067/Anustup_sarod_kibn4o.jpg"
     },
+
+    // Designers
+    {
+        name: "Nirav",
+        role: "Designer",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637067/Nirav_designer_sl5e3d.jpg"
+    },
+    {
+        name: "Aditya",
+        role: "Designer",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766849161/WhatsApp_Image_2025-12-27_at_20.55.10_x6vvb8.jpg"
+    },
+
+    // Photographers
+    {
+        name: "Rishav",
+        role: "Photographer",
+        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/rishav_photographer_gdbitk.jpg"
+    },
+
+    // Managers
     {
         name: "Rishabh",
         role: "Manager",
@@ -71,16 +107,6 @@ const bandMembers: BandMember[] = [
         name: "Sthiti",
         role: "Manager",
         image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637065/Sthiti_manager_h8aozg.jpg"
-    },
-    {
-        name: "Nirav",
-        role: "Designer",
-        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637067/Nirav_designer_sl5e3d.jpg"
-    },
-    {
-        name: "Rishav",
-        role: "Photographer",
-        image: "https://res.cloudinary.com/dkzmumdp2/image/upload/f_auto,q_auto/v1766637066/rishav_photographer_gdbitk.jpg"
     }
 ];
 

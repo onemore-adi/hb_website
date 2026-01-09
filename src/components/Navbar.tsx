@@ -202,7 +202,8 @@ export function Navbar() {
         <>
             {/* Sticky HEARTBEATS Title - Top Left */}
             <div className={`brand-title ${isVisible ? 'visible' : 'hidden'}`}>
-                HEARTBEATS
+                <img src="/images/HB_LOGO.png" alt="HB Logo" className="brand-logo" />
+                <span>HEARTBEATS</span>
             </div>
 
             {/* Portal Icon - Top Right */}
@@ -221,8 +222,11 @@ export function Navbar() {
             </button>
 
             {/* Full-Screen Portal Overlay */}
-            <div className={`portal-overlay ${isMenuOpen ? 'open' : ''}`}>
-                <nav className="portal-nav">
+            <div
+                className={`portal-overlay ${isMenuOpen ? 'open' : ''}`}
+                onClick={closeMenu}
+            >
+                <nav className="portal-nav" onClick={(e) => e.stopPropagation()}>
                     {navLinks.map((link, index) => (
                         <a
                             key={link.label}
@@ -243,11 +247,6 @@ export function Navbar() {
                     Click anywhere or press ESC to close
                 </div>
             </div>
-
-            {/* Backdrop for closing */}
-            {isMenuOpen && (
-                <div className="portal-backdrop" onClick={closeMenu} />
-            )}
         </>
     );
 }

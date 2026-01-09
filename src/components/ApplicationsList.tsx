@@ -12,7 +12,7 @@ export function ApplicationsList() {
     const [applications, setApplications] = useState<Application[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoaded, setIsLoaded] = useState(false);
-    const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'declined' | 'round2_selected'>('all');
+    const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'declined' | 'round2_selected' | 'round3_selected'>('all');
 
     useEffect(() => {
         console.log("ApplicationsList Debug:", { userProfile, isAdmin: userProfile?.isAdmin, verStatus: userProfile?.verificationStatus });
@@ -79,6 +79,8 @@ export function ApplicationsList() {
                 return <span className={`${styles.badge} ${styles.badgeDeclined}`}>DECLINED</span>;
             case 'round2_selected':
                 return <span className={`${styles.badge} ${styles.badgeRound2}`}>ROUND 2</span>;
+            case 'round3_selected':
+                return <span className={`${styles.badge}`} style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6', border: '1px solid rgba(139, 92, 246, 0.3)' }}>ROUND 3</span>;
             default:
                 return <span className={`${styles.badge} ${styles.badgePending}`}>PENDING</span>;
         }
@@ -95,7 +97,8 @@ export function ApplicationsList() {
         pending: applications.filter(a => a.status === 'pending').length,
         accepted: applications.filter(a => a.status === 'accepted').length,
         declined: applications.filter(a => a.status === 'declined').length,
-        round2_selected: applications.filter(a => a.status === 'round2_selected').length
+        round2_selected: applications.filter(a => a.status === 'round2_selected').length,
+        round3_selected: applications.filter(a => a.status === 'round3_selected').length
     };
 
     // Selection Logic
@@ -271,6 +274,7 @@ export function ApplicationsList() {
                         <span className={styles.stat}>{counts.all} TOTAL</span>
                         <span className={styles.stat}>{counts.pending} PENDING</span>
                         <span className={styles.stat}>{counts.round2_selected} R2</span>
+                        <span className={styles.stat}>{counts.round3_selected} R3</span>
                         {/* Debug Info */}
                         <span className={styles.stat} style={{ color: userProfile?.isAdmin ? '#4caf50' : '#f44336' }}>
                             {userProfile?.isAdmin ? 'ADMIN' : 'USER'} ({userProfile?.verificationStatus})
@@ -280,7 +284,7 @@ export function ApplicationsList() {
 
                 {/* Filter Tabs */}
                 <div className={styles.tabs}>
-                    {(['all', 'pending', 'round2_selected', 'accepted', 'declined'] as const).map(tab => (
+                    {(['all', 'pending', 'round2_selected', 'round3_selected', 'accepted', 'declined'] as const).map(tab => (
                         <button
                             key={tab}
                             className={`${styles.tab} ${filter === tab ? styles.active : ''}`}

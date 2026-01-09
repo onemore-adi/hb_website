@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
+import type { Application } from '../types/Application';
 import styles from '../styles/UserDashboard.module.css';
 
 export function UserDashboard() {
@@ -11,6 +12,9 @@ export function UserDashboard() {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
+
+    // Application state
+    const [myApplication, setMyApplication] = useState<Application | null>(null);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -46,6 +50,24 @@ export function UserDashboard() {
             });
         }
     }, [userProfile]);
+
+    // Fetch user's application
+    useEffect(() => {
+        if (!user) return;
+
+        const appsRef = collection(db, 'applications');
+        const q = query(appsRef, where('email', '==', user.email));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            if (!snapshot.empty) {
+                setMyApplication({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Application);
+            } else {
+                setMyApplication(null);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [user]);
 
     // Handle input change
     const handleChange = (field: string, value: string) => {
@@ -258,6 +280,33 @@ export function UserDashboard() {
                         </div>
                     </div>
                 </div>
+
+                {/* Application Status Card */}
+                {myApplication && (
+                    <div className={styles.verificationCard} style={{ marginBottom: '20px', borderColor: 'rgba(59, 130, 246, 0.3)', background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.1) 100%)' }}>
+                        <h3 className={styles.verificationTitle} style={{ color: '#60a5fa' }}>HEARTBEATS INDUCTION 2024</h3>
+                        <div style={{ margin: '1rem 0' }}>
+                            <div style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.8rem', fontWeight: 600, background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', marginBottom: '0.5rem' }}>
+                                {myApplication.status === 'round3_selected' ? 'FINAL ROUND' :
+                                    myApplication.status === 'round2_selected' ? 'APPLICATION UPDATE' :
+                                        myApplication.status === 'round1_cleared' ? 'ROUND 1 CLEARED' :
+                                            myApplication.status === 'accepted' ? 'ACCEPTED' :
+                                                myApplication.status.toUpperCase()}
+                            </div>
+                            <p className={styles.verificationText}>
+                                {myApplication.status === 'pending' && 'Your application is currently under review.'}
+                                {myApplication.status === 'round1_cleared' && 'You have cleared Round 1! Please wait for further instructions via WhatsApp/Email.'}
+                                {myApplication.status === 'round2_selected' && 'Update on your application. Check the Join Us page for details.'}
+                                {myApplication.status === 'round3_selected' && 'You have been selected for the Final Round! Check the Join Us page for details.'}
+                                {myApplication.status === 'accepted' && 'Welcome to the family! You are now a member of HeartBeats.'}
+                                {myApplication.status === 'declined' && 'Thank you for your interest. Unfortunately, you were not selected this time. Try again next time.. Good luck!'}
+                            </p>
+                        </div>
+                        <Link to="/join-us" className={styles.verifyButton} style={{ display: 'inline-block', textDecoration: 'none', background: '#2563eb', border: 'none' }}>
+                            VIEW APPLICATION DETAILS →
+                        </Link>
+                    </div>
+                )}
 
                 {/* Verification Section */}
                 {userProfile?.verificationStatus === 'none' && (

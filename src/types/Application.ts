@@ -19,8 +19,14 @@ export interface Application {
     videoLink?: string;            // Audition video
     performanceLink?: string;      // Legacy field
     message?: string;              // Legacy field
-    status: 'pending' | 'accepted' | 'declined' | 'round2_selected';
+    status: 'pending' | 'accepted' | 'declined' | 'round2_selected' | 'round1_cleared' | 'round3_selected';
     round2Task?: {
+        title: string;
+        description: string;
+        assignedAt: { seconds: number; nanoseconds: number } | Date;
+        emailSent?: boolean;
+    };
+    round3Task?: {
         title: string;
         description: string;
         assignedAt: { seconds: number; nanoseconds: number } | Date;

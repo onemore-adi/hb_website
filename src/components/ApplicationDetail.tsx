@@ -174,7 +174,7 @@ export function ApplicationDetail() {
     };
 
     // Update status (admin only)
-    const handleStatusChange = async (newStatus: 'pending' | 'accepted' | 'declined') => {
+    const handleStatusChange = async (newStatus: 'pending' | 'accepted' | 'declined' | 'round1_cleared') => {
         if (!id || !userProfile?.isAdmin || isUpdating) return;
 
         setIsUpdating(true);
@@ -198,6 +198,7 @@ export function ApplicationDetail() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'accepted': return <span className={`${styles.badge} ${styles.badgeAccepted}`}>✓ ACCEPTED</span>;
+            case 'round1_cleared': return <span className={`${styles.badge}`} style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>ROUND 1 CLEARED</span>;
             case 'declined': return <span className={`${styles.badge} ${styles.badgeDeclined}`}>✗ DECLINED</span>;
             case 'round2_selected': return <span className={`${styles.badge}`} style={{ background: 'rgba(64, 123, 255, 0.15)', color: '#407bff', border: '1px solid rgba(64, 123, 255, 0.3)' }}>ROUND 2</span>;
             default: return <span className={`${styles.badge} ${styles.badgePending}`}>⏳ PENDING</span>;
@@ -249,8 +250,8 @@ export function ApplicationDetail() {
                 {/* Admin Actions */}
                 {userProfile?.isAdmin && (
                     <div className={styles.actions}>
-                        <button className={`${styles.actionButton} ${styles.acceptButton} ${application.status === 'accepted' ? styles.active : ''}`} onClick={() => handleStatusChange('accepted')} disabled={isUpdating}>
-                            {isUpdating ? '...' : 'ACCEPT'}
+                        <button className={`${styles.actionButton} ${styles.acceptButton} ${application.status === 'round1_cleared' ? styles.active : ''}`} onClick={() => handleStatusChange('round1_cleared')} disabled={isUpdating}>
+                            {isUpdating ? '...' : 'CLEAR R1'}
                         </button>
                         <button className={`${styles.actionButton} ${styles.pendingButton} ${application.status === 'pending' ? styles.active : ''}`} onClick={() => handleStatusChange('pending')} disabled={isUpdating}>
                             {isUpdating ? '...' : 'PENDING'}

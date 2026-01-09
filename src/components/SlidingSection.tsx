@@ -481,7 +481,7 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                         letterSpacing: '0.02em',
                         textTransform: 'uppercase'
                     }}>
-                        Who Are We
+                        Who are we?
                     </h2>
                     <p style={{
                         fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
@@ -494,7 +494,7 @@ export function SlidingSection({ scrollProgress, expansionProgress }: SlidingSec
                         margin: 0,
                         letterSpacing: 'normal'
                     }}>
-                        The official Music Fusion Band of NIT Rourkela, blending diverse rhythms and melodies to create unforgettable performances that resonate with every soul.
+                        The official fusion band of NIT Rourkela, blending diverse rhythms and melodies to create unforgettable performances that resonate with every soul.
                     </p>
                 </div>
             </div>

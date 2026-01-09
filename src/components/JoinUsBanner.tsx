@@ -3,19 +3,20 @@ import { Link } from 'react-router-dom';
 import styles from '../styles/JoinUsBanner.module.css';
 
 // Achievements data - using index numbers instead of emojis
+// Achievements data - using index numbers instead of emojis
 const achievements = [
-    "Best Band - NIT Rourkela 2024",
-    "50+ Live Performances",
-    "Inter-NIT Champions 2023",
-    "3 Original Compositions",
+    "NAAD (IIT BBSR) - 1st",
+    "Pair On Stage (IIT BBSR) - 2nd",
+    "Sargam (IIT Kgp) - 3rd",
+    "LakeSide Dreams (IIT Kgp) - 3rd",
 ];
 
 // Performances data
 const performances = [
-    "Nitrutsav 2024 - Main Stage",
-    "Mood Indigo, IIT Bombay",
-    "Thomso, IIT Roorkee",
-    "Spring Fest 2024",
+    "Maktub - Flagship Event",
+    "Grand Farewell 2023",
+    "BITS Goa Waves 2025",
+    "Innovision - 2024",
 ];
 
 export function JoinUsBanner() {

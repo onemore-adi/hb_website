@@ -272,8 +272,12 @@ export function JoinUs() {
                 return <span className={`${styles.statusBadge} ${styles.statusAccepted}`}>✓ ACCEPTED</span>;
             case 'declined':
                 return <span className={`${styles.statusBadge} ${styles.statusDeclined}`}>✗ DECLINED</span>;
+            case 'round1_cleared':
+                return <span className={`${styles.statusBadge}`} style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)' }}>ROUND 1 CLEARED</span>;
             case 'round2_selected':
-                return <span className={`${styles.statusBadge} ${styles.statusRound2}`}>ROUND 2</span>;
+                return <span className={`${styles.statusBadge} ${styles.statusRound2}`}>APPLICATION UPDATE</span>;
+            case 'round3_selected':
+                return <span className={`${styles.statusBadge}`} style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6', border: '1px solid rgba(139, 92, 246, 0.3)' }}>FINAL ROUND</span>;
             default:
                 return <span className={`${styles.statusBadge} ${styles.statusPending}`}>⏳ PENDING</span>;
         }
@@ -399,15 +403,20 @@ export function JoinUs() {
                                         Welcome to HeartBeats! Check your email for next steps.
                                     </p>
                                 )}
+                                {existingApplication.status === 'round1_cleared' && (
+                                    <p className={styles.statusMessage}>
+                                        Congratulations! You have cleared Round 1. Please wait for further instructions to be communicated via WhatsApp, Email, or Website.
+                                    </p>
+                                )}
                                 {existingApplication.status === 'declined' && (
                                     <p className={styles.statusMessage}>
-                                        Unfortunately, your application was not successful this time.
+                                        Unfortunately, your application was not successful this time. Try again next time.. Good luck!
                                     </p>
                                 )}
                                 {existingApplication.status === 'round2_selected' && (
                                     <div className={styles.round2Container}>
                                         <p className={styles.statusMessage}>
-                                            Congratulations! You have been selected for Round 2.
+                                            We have been pleased to receive your response. While we appreciate your talent, we sincerely hope to have another offline round with you before proceeding to the final round. The details will be communicated through appropriate channels.
                                         </p>
                                         {existingApplication.round2Task && (
                                             <div className={styles.taskCard}>
@@ -416,6 +425,34 @@ export function JoinUs() {
                                                     __html: existingApplication.round2Task.description.replace(/\n/g, '<br/>')
                                                 }} />
                                             </div>
+                                        )}
+                                    </div>
+                                )}
+                                {existingApplication.status === 'round3_selected' && (
+                                    <div className={styles.round2Container} style={{ borderColor: 'rgba(139, 92, 246, 0.3)', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.1) 100%)' }}>
+                                        {!existingApplication.round3Task ? (
+                                            <>
+                                                <h3 className={styles.taskTitle} style={{ color: '#8b5cf6', marginBottom: '10px' }}>Congratulations!</h3>
+                                                <p className={styles.statusMessage}>
+                                                    You have been promoted to the <strong>final round of inductions</strong>. Wait while we assign you the task!
+                                                </p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p className={styles.statusMessage}>
+                                                    Congratulations! You have been selected for the <strong>Final Round</strong>.
+                                                </p>
+                                                <div className={styles.taskCard} style={{ borderLeft: '3px solid #8b5cf6' }}>
+                                                    <h3 className={styles.taskTitle}>{existingApplication.round3Task.title}</h3>
+                                                    <p className={styles.taskDesc} dangerouslySetInnerHTML={{
+                                                        __html: existingApplication.round3Task.description.replace(/\n/g, '<br/>')
+                                                    }} />
+                                                    <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.9rem', color: '#aaa' }}>
+                                                        <p style={{ margin: '0 0 5px 0' }}>📅 We will contact you regarding the date and time of your final evaluation.</p>
+                                                        <p style={{ margin: 0 }}>📞 For any queries, please verify locally or reply to the email sent.</p>
+                                                    </div>
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                 )}
